@@ -54,7 +54,7 @@ type JSONInput struct {
 
 // #endregion
 
-// LoadConfigurations reads and unmarshals the JSON configuration file.
+// LoadConfigurations read and unmarshal the JSON configuration file.
 func LoadConfigurations(filename string) (OptionsMap, SessionMap, map[string]string, error) {
 	data, err := os.ReadFile(filename)
 	if err != nil {
