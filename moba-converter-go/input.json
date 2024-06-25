@@ -1,0 +1,26 @@
+{
+  "_meta": {
+    "description": "Example JSON input file for sessions and templates"
+  },
+  "sessions": [
+    {
+      "sessionName": "abc",
+      "session_type": "ssh",
+      "remote_host": "1.2.3.4",
+      "someotherconfig": "othervalue",
+      "template": "prodsrv"
+    },
+    {
+      "sessionName": "def",
+      "session_type": "rdp",
+      "remote_host": "5.6.7.8",
+      "template": "prodsrv"
+    }
+  ],
+  "templates": {
+    "prodsrv": {
+      "tab_color": "16711680",
+      "someotherconfig": "othervalue"
+    }
+  }
+}

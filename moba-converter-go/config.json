@@ -1,0 +1,555 @@
+{
+  "_meta": {
+    "version": "1.0.0",
+    "changed_when": "2024-06-25"
+  },
+  "session_types": {
+    "ssh": {
+      "session_type": "109",
+      "tmplString": "{{.sessionName}}={{ .Logout }}#{{ .IconNumber }}#{{ .SessionType }}%{{ .RemoteHost }}%{{ .Port }}%{{ .Username }}%%{{ .X11Forwarding }}%{{ .Compression }}%{{ .ExecuteCommand }}%{{ .SSHGWHostList }}%{{ .SSHGWPortList }}%{{ .SSHGWUserList }}%{{ .DoNotExitAfterLoginCommand }}%{{ .DontSpecifyUsername }}%{{ .RemoteEnvironment }}%{{ .PrivateKeyPath }}%{{ .SSHGWPrivateKeyList }}%{{ .SSHBrowserType }}%{{ .FollowSSHPath }}%0%{{ .ProxyType }}%{{ .ProxyHost }}%{{ .ProxyPort }}%{{ .ProxyLogin }}%{{ .AdaptLocales }}%{{ .FileBrowserSCPOverSFTP }}%{{ .FileBrowserProtocol }}%{{ .LocalProxyCommand }}%{{ .SSHProtocolVersion }}%{{ .KeyExchangeAlgos }}%{{ .HostKeyTypes }}%{{ .Ciphers }}%{{ .DisconnectIfAuthSucceedsTrivially }}%{{ .PreferHostKeyAlgorithms }}%{{ .AttemptAuthUsingSSHAgent }}%{{ .AllowAgentForwarding }}#{{ .TerminalFont }}%{{ .FontSize }}%{{ .TerminalFontBold }}%%{{ .AppendWindowsPath }}%{{ .TerminalCharset }}%{{ .Foreground }}%{{ .Background }}%{{ .CursorColor }}%{{ .CursorType }}%{{ .BackspaceSendsCtrlH }}%{{ .LogOutput }}%{{ .LogFolderPath }}%{{ .TerminalType }}%{{ .LockTerminalTitle }}%%{{ .ColorScheme }}%{{ .TerminalRows }}%{{ .TerminalColumns }}%{{ .ForceFixedRowsCols }}%{{ .SyntaxHighlighting }}%{{ .ShowBoldFontAsBrighter }}%{{ .CustomMacroType }}%{{ .CustomMacroText }}%{{ .PasteDelay }}%{{ .FontCharset }}%{{ .FontAntialiasing }}%{{ .FontLigatures }}#{{ .StartSessionIn }}#{{ .Comments }}#{{ .CustomTabColor }}",
+      "allowed_options": []
+    }
+  },
+  "options": {
+    "Logout": {
+      "default_value": "true",
+      "section": "Bookmark settings",
+      "help": "Determines whether to display a reconnection message when logging out.",
+      "options": {
+        "false": ";  logout",
+        "true": " "
+      }
+    },
+    "IconNumber": {
+      "default_value": "109",
+      "section": "General",
+      "help": "The icon number of the session. The default for SSH is 109."
+    },
+    "SessionType": {
+      "default_value": "0",
+      "section": "General",
+      "help": "Indicates the session type. For SSH connections, it's always '0'.",
+      "options": {
+        "SSH": "0"
+      }
+    },
+    "RemoteHost": {
+      "default_value": "",
+      "required": true,
+      "section": "Basic SSH settings",
+      "help": "The hostname or IP address of the remote SSH server. This field cannot be empty."
+    },
+    "Port": {
+      "default_value": "22",
+      "section": "Basic SSH settings",
+      "help": "The port number for the SSH connection. The default SSH port is 22."
+    },
+    "Username": {
+      "default_value": "",
+      "section": "Basic SSH settings",
+      "help": "The username for the SSH connection."
+    },
+    "X11Forwarding": {
+      "default_value": "Enable",
+      "section": "Advanced SSH settings",
+      "help": "Enable X11 forwarding.",
+      "options": {
+        "Enable": "-1",
+        "Disable": "0",
+        "true": "-1",
+        "false": "0"
+      }
+    },
+    "Compression": {
+      "default_value": "Enable",
+      "section": "Advanced SSH settings",
+      "help": "Enable compression.",
+      "options": {
+        "Enable": "-1",
+        "Disable": "0",
+        "true": "-1",
+        "false": "0"
+      }
+    },
+    "ExecuteCommand": {
+      "default_value": "",
+      "section": "Advanced SSH settings",
+      "help": "Command to execute upon login. ';' in the text field is replaced with '__PTVIRG__' in the setting."
+    },
+    "SSHGWHostList": {
+      "default_value": "",
+      "section": "Network settings",
+      "help": "List of SSH gateway hosts. Multiple hostnames are separated by '__PIPE__'."
+    },
+    "SSHGWPortList": {
+      "default_value": "",
+      "section": "Network settings",
+      "help": "List of SSH gateway ports. Multiple ports are separated by '__PIPE__'."
+    },
+    "SSHGWUserList": {
+      "default_value": "",
+      "section": "Network settings",
+      "help": "List of SSH gateway usernames. Multiple usernames are separated by '__PIPE__'."
+    },
+    "DoNotExitAfterLoginCommand": {
+      "default_value": "false",
+      "section": "Advanced SSH settings",
+      "help": "Determines whether to exit after the login command ends.",
+      "options": {
+        "Enable": "-1",
+        "Disable": "0",
+        "true": "-1",
+        "false": "0"
+      }
+    },
+    "DontSpecifyUsername": {
+      "default_value": "0",
+      "section": "General",
+      "help": "Indicates whether to specify a username. '-1' to enable, '0' if a specific username is used.",
+      "options": {
+        "Enable": "-1",
+        "Disable": "0",
+        "true": "-1",
+        "false": "0"
+      }
+    },
+    "RemoteEnvironment": {
+      "default_value": "0",
+      "section": "Advanced SSH settings",
+      "help": "Specifies the remote environment. (Not yet finished)",
+      "options": {
+        "Interactive Shell": "0",
+        "LXDE": "1"
+      }
+    },
+    "PrivateKeyPath": {
+      "default_value": "",
+      "section": "Advanced SSH settings",
+      "help": "Path to the private key file."
+    },
+    "SSHGWPrivateKeyList": {
+      "default_value": "",
+      "section": "Network settings",
+      "help": "List of private keys for SSH gateways. Multiple keys are separated by '__PIPE__'."
+    },
+    "SSHBrowserType": {
+      "default_value": "true",
+      "section": "Advanced SSH settings",
+      "help": "Enable SSH File-browser.",
+      "options": {
+        "Enable": "-1",
+        "Disable": "0",
+        "true": "-1",
+        "false": "0"
+      }
+    },
+    "FollowSSHPath": {
+      "default_value": "false",
+      "section": "Advanced SSH settings",
+      "help": "Follow SSH path in the file browser.",
+      "options": {
+        "Enable": "-1",
+        "Disable": "0",
+        "true": "-1",
+        "false": "0"
+      }
+    },
+    "ProxyType": {
+      "default_value": "None",
+      "section": "Network settings",
+      "help": "Type of proxy.",
+      "options": {
+        "None": "0",
+        "Socks4": "1",
+        "Socks5": "2",
+        "Http": "3",
+        "Telnet": "4",
+        "Local": "5"
+      }
+    },
+    "ProxyHost": {
+      "default_value": "",
+      "section": "Network settings",
+      "help": "Hostname or IP address of the proxy server."
+    },
+    "ProxyPort": {
+      "default_value": "1080",
+      "section": "Network settings",
+      "help": "Port number of the proxy server."
+    },
+    "ProxyLogin": {
+      "default_value": "",
+      "section": "Network settings",
+      "help": "Login username for the proxy server."
+    },
+    "AdaptLocales": {
+      "default_value": "false",
+      "section": "Expert SSH settings",
+      "help": "Send local language settings to the server.",
+      "options": {
+        "Enable": "-1",
+        "Disable": "0",
+        "true": "-1",
+        "false": "0"
+      }
+    },
+    "FileBrowserSCPOverSFTP": {
+      "default_value": "0",
+      "section": "Advanced SSH settings",
+      "help": "Use SCP over SFTP for file browsing. '-1' for SCP, '0' for SSH or None.  #TODO: CALC",
+      "options": {
+        "SCP": "-1",
+        "SSH/None": "0"
+      }
+    },
+    "FileBrowserProtocol": {
+      "default_value": "Disabled",
+      "section": "Advanced SSH settings",
+      "help": "Protocol for file browsing.",
+      "options": {
+        "false": "0",
+        "Disabled": "0",
+        "SFTP": "1",
+        "SCP Speed": "2",
+        "SCP Normal": "3"
+      }
+    },
+    "LocalProxyCommand": {
+      "default_value": "",
+      "section": "Network settings",
+      "help": "Command for local proxy. Recognizes internal variables %host, %port, %user, %pass. '%' should be replaced with '__PERCENT__'. Use %% (__PERCENT____PERCENT__) to use %."
+    },
+    "SSHProtocolVersion": {
+      "default_value": "Auto",
+      "section": "Expert SSH settings",
+      "help": "SSH protocol version.",
+      "options": {
+        "Auto": "0",
+        "SSHv2": "1",
+        "SSHv1": "2"
+      }
+    },
+    "KeyExchangeAlgos": {
+      "default_value": "",
+      "section": "Expert SSH settings",
+      "help": "Key exchange algorithms. Default: ecdh,dh-gex-sha1,dh-group14-sha1,rsa,WARN,dh-group1-sha1."
+    },
+    "HostKeyTypes": {
+      "default_value": "",
+      "section": "Expert SSH settings",
+      "help": "Host key types. Default: ed448,ed25519,ecdsa,rsa,WARN,dsa."
+    },
+    "Ciphers": {
+      "default_value": "",
+      "section": "Expert SSH settings",
+      "help": "Ciphers. Default: aes,chacha20,3des,WARN,des,blowfish,arcfour."
+    },
+    "DisconnectIfAuthSucceedsTrivially": {
+      "default_value": "false",
+      "section": "Expert SSH settings",
+      "help": "Disconnect if authentication succeeds without password or token.",
+      "options": {
+        "Enable": "-1",
+        "Disable": "0",
+        "true": "-1",
+        "false": "0"
+      }
+    },
+    "PreferHostKeyAlgorithms": {
+      "default_value": "true",
+      "section": "Expert SSH settings",
+      "help": "Adjust the preference order so that known host keys from this server are moved to the top of the list",
+      "options": {
+        "Enable": "-1",
+        "Disable": "0",
+        "true": "-1",
+        "false": "0"
+      }
+    },
+    "AttemptAuthUsingSSHAgent": {
+      "default_value": "true",
+      "section": "Expert SSH settings",
+      "help": "Internal agent or external PuTTY agent, set in global settings",
+      "options": {
+        "Enable": "-1",
+        "Disable": "0",
+        "true": "-1",
+        "false": "0"
+      }
+    },
+    "AllowAgentForwarding": {
+      "default_value": "false",
+      "section": "Expert SSH settings",
+      "help": "Open forwarded connections back to your local agent",
+      "options": {
+        "Enable": "-1",
+        "Disable": "0",
+        "true": "-1",
+        "false": "0"
+      }
+    },
+    "TerminalFont": {
+      "default_value": "MobaFont",
+      "section": "Terminal settings",
+      "help": "Any installed font + the builtin 'MobaFont'"
+    },
+    "FontSize": {
+      "default_value": "10",
+      "section": "Terminal settings",
+      "help": "Font Size to use"
+    },
+    "TerminalFontBold": {
+      "default_value": "false",
+      "section": "Terminal settings",
+      "help": "enabled '-1', disabled '0'",
+      "options": {
+        "Enable": "-1",
+        "Disable": "0",
+        "true": "-1",
+        "false": "0"
+      }
+    },
+    "AppendWindowsPath": {
+      "default_value": "true",
+      "section": "Terminal settings",
+      "help": "Append Windows PATH to shell env",
+      "options": {
+        "Enable": "-1",
+        "Disable": "0",
+        "true": "-1",
+        "false": "0"
+      }
+    },
+    "TerminalCharset": {
+      "default_value": "UTF-8",
+      "section": "Terminal settings",
+      "help": "Not all options are possible yet",
+      "options": {
+        "UTF-8": "15",
+        "ISO-8859-1": "0",
+        "ISO-8859-15": "13",
+        "CP850": "22",
+        "Font encoding": "40"
+      }
+    },
+    "Foreground": {
+      "default_value": "236,236,236",
+      "section": "Terminal settings",
+      "help": "'R,G,B' Must be comma-separated"
+    },
+    "Background": {
+      "default_value": "30,30,30",
+      "section": "Terminal settings",
+      "help": "'R,G,B' Must be comma-separated"
+    },
+    "CursorColor": {
+      "default_value": "180,180,192",
+      "section": "Terminal settings",
+      "help": "'R,G,B' Must be comma-separated"
+    },
+    "CursorType": {
+      "default_value": "Block",
+      "section": "Terminal settings",
+      "help": "courser Style",
+      "options": {
+        "Block": "0",
+        "Underline": "1",
+        "Line": "2",
+        "Blinking block": "3",
+        "Blinking underline": "4",
+        "Blinking line": "5"
+      }
+    },
+    "BackspaceSendsCtrlH": {
+      "default_value": "true",
+      "section": "Terminal settings",
+      "help": "Backspace sends ^H (if disabled sends ^? instead)",
+      "options": {
+        "Enable": "-1",
+        "Disable": "0",
+        "true": "-1",
+        "false": "0"
+      }
+    },
+    "LogOutput": {
+      "default_value": "false",
+      "section": "Terminal settings",
+      "help": "enabled '-1', disabled '0'",
+      "options": {
+        "Enable": "-1",
+        "Disable": "0",
+        "true": "-1",
+        "false": "0"
+      }
+    },
+    "LogFolderPath": {
+      "default_value": "",
+      "section": "Terminal settings",
+      "help": "`<>` for the executable path (ex: portable app), path otherwise ('C' drive replacement as usual)"
+    },
+    "TerminalType": {
+      "default_value": "xterm",
+      "section": "Terminal settings",
+      "help": "List in v22.3: xterm, xterm-r6, vt100, vt100+, vt220, vt400, vt900, OpenVMS, OpenVMS2, Netterm100, Netterm220, ShiftFnKeys, ESC[n~, SCO, Byobu, xterm-256color"
+    },
+    "LockTerminalTitle": {
+      "default_value": "true",
+      "section": "Terminal settings",
+      "help": "allows the shell to change the tab title",
+      "options": {
+        "Enable": "-1",
+        "Disable": "0",
+        "true": "-1",
+        "false": "0"
+      }
+    },
+    "ColorScheme": {
+      "default_value": "_Std_Colors_0_",
+      "section": "Terminal settings",
+      "help": "NOT SUPPORTED: !!!! Default is for 'Current global color theme' (safer choice). Any other choice changes the number of fields by turning index 16 into 16 colors also separated by '%'."
+    },
+    "TerminalRows": {
+      "default_value": "80",
+      "section": "Terminal settings",
+      "help": "Requires ForceFixedRowsCols to be true"
+    },
+    "TerminalColumns": {
+      "default_value": "24",
+      "section": "Terminal settings",
+      "help": "Requires ForceFixedRowsCols to be true"
+    },
+    "ForceFixedRowsCols": {
+      "default_value": "false",
+      "section": "Terminal settings",
+      "help": "enabled '-1', disabled '0'",
+      "options": {
+        "Enable": "-1",
+        "Disable": "0",
+        "true": "-1",
+        "false": "0"
+      }
+    },
+    "SyntaxHighlighting": {
+      "default_value": "Standard keywords",
+      "section": "Terminal settings",
+      "help": "Set Syntax Highlighting.",
+      "options": {
+        "None": "0",
+        "Standard keywords": "1",
+        "Unix shell script ": "2",
+        "Cisco": "3",
+        "Perl": "4",
+        "SQL": "5",
+        "Custom 1": "101",
+        "Custom 2": "102",
+        "Custom 3": "103",
+        "Custom 4": "104",
+        "Custom 5": "105",
+        "Custom 6": "106",
+        "Custom 7": "107",
+        "Custom 8": "108"
+      }
+    },
+    "ShowBoldFontAsBrighter": {
+      "default_value": "-1",
+      "section": "Terminal settings",
+      "help": "Show Bold Font As Brighter",
+      "options": {
+        "Enable": "-1",
+        "Disable": "0",
+        "true": "-1",
+        "false": "0"
+      }
+    },
+    "CustomMacroType": {
+      "default_value": "<none>",
+      "section": "Terminal settings",
+      "help": "`<none>` or `<custom macro>`"
+    },
+    "CustomMacroText": {
+      "default_value": "",
+      "section": "Terminal settings",
+      "help": "each text starts with '12:2:0:' and ends with '`__PIPE__`' (currently buggy, they get concatenated in v22.3)"
+    },
+    "PasteDelay": {
+      "default_value": "0",
+      "section": "Terminal settings",
+      "help": "Self explained",
+      "options": {
+        "Auto": "0",
+        "none": "1",
+        "10ms": "2",
+        "20ms": "3",
+        "30ms": "4",
+        "40ms": "5",
+        "50ms": "6",
+        "60ms": "7",
+        "70ms": "8",
+        "80ms": "9",
+        "90ms": "10",
+        "100ms": "11",
+        "200ms": "12",
+        "360ms": "13"
+      }
+    },
+    "FontCharset": {
+      "default_value": "DEFAULT",
+      "section": "Terminal settings",
+      "help": "",
+      "options": {
+        "ANSI": "0",
+        "DEFAULT": "1",
+        "ARABIC": "178'",
+        "GREEK": "161'",
+        "TURKISH": "162'",
+        "VIETNAMESE": "163'",
+        "EASTEUROPE": "238'",
+        "RUSSIAN": "204'",
+        "BALTIC": "186"
+      }
+    },
+    "FontAntialiasing": {
+      "default_value": "true",
+      "section": "Terminal settings",
+      "help": "",
+      "options": {
+        "Enable": "-1",
+        "Disable": "0",
+        "true": "-1",
+        "false": "0"
+      }
+    },
+    "FontLigatures": {
+      "default_value": "true",
+      "section": "Terminal settings",
+      "help": "",
+      "options": {
+        "Enable": "-1",
+        "Disable": "0",
+        "true": "-1",
+        "false": "0"
+      }
+    },
+    "StartSessionIn": {
+      "default_value": "Normal",
+      "section": "Terminal settings",
+      "help": "",
+      "options": {
+        "Normal": "0",
+        "Detached": "1",
+        "Maximized detached": "2",
+        "Fullscreen": "3"
+      }
+    },
+    "Comments": {
+      "default_value": "",
+      "section": "Terminal settings",
+      "help": "No '%' is allowed in the comment. Write a '#' as '__DIEZE__'"
+    },
+    "CustomTabColor": {
+      "default_value": "-1",
+      "section": "Bookmark settings",
+      "help": "The decimal value of the RGB color ('536870911' for the default color (whitish), '0' for black, '255' for pure red, '65280' for pure green, '16711680' for pure blue)"
+    }
+  }
+}

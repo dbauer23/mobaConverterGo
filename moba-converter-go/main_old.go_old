@@ -1,0 +1,231 @@
+package main
+
+import (
+	"bufio"
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"log"
+	"os"
+	"strings"
+	"text/template"
+)
+
+// #region Global var definition
+
+// Options represents a map of string key-value pairs for options.
+type Options map[string]string
+
+// OptionsConfiguration holds the configuration for each option.
+type OptionsConfiguration struct {
+	Required *bool   `json:"required,omitempty"`
+	Default  string  `json:"default_value"`
+	Section  string  `json:"section"`
+	Help     string  `json:"help"`
+	Options  Options `json:"options,omitempty"`
+}
+
+// SessionConfiguration holds the configuration for each session.
+type SessionConfiguration struct {
+	SessionType    string   `json:"session_type"`
+	TmplString     string   `json:"tmplString"`
+	AllowedOptions []string `json:"allowed_options"`
+	Options        Options  `json:"options,omitempty"`
+}
+
+// OptionsMap maps option names to their configurations.
+type OptionsMap map[string]OptionsConfiguration
+
+// SessionMap maps session types to their configurations.
+type SessionMap map[string]SessionConfiguration
+
+// Config represents the overall configuration with session types and options.
+type Config struct {
+	SessionTypes SessionMap `json:"session_types"`
+	Options      OptionsMap `json:"options"`
+}
+
+// #endregion
+
+// LoadConfigurations reads and unmarshals the JSON configuration file.
+func LoadConfigurations(filename string) (OptionsMap, SessionMap, error) {
+	data, err := os.ReadFile(filename)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var conf Config
+	if err := json.Unmarshal(data, &conf); err != nil {
+		return nil, nil, err
+	}
+
+	return conf.Options, conf.SessionTypes, nil
+}
+
+// #region Line handling
+// handleLine processes each line based on the current section.
+func handleLine(line, inSection string, lineNumber int, optionsMap OptionsMap, sessions *[]map[string]string, sessionTemplates map[string]map[string]string) {
+	switch inSection {
+	case "sessions":
+		var sessionData map[string]string
+		if err := json.Unmarshal([]byte(line), &sessionData); err != nil {
+			fmt.Printf("Error parsing line %d as JSON: %v\n", lineNumber, err)
+			return
+		}
+
+		if templateName, hasTemplate := sessionData["template"]; hasTemplate {
+			fmt.Printf("Session %s uses template %s\n", sessionData["session"], templateName)
+			sessionData = applyTemplate(sessionData, sessionTemplates[templateName])
+		}
+
+		sessionData = setDefaultValues(sessionData, optionsMap)
+		sessionData = applyValueReplacements(sessionData, optionsMap)
+
+		*sessions = append(*sessions, sessionData)
+
+	case "templates":
+		parts := strings.SplitN(line, ":", 2)
+		if len(parts) == 2 {
+			key := strings.TrimSpace(parts[0])
+			fmt.Printf("Found template <%s>\n", key)
+
+			var templateData map[string]string
+			if err := json.Unmarshal([]byte(strings.TrimSpace(parts[1])), &templateData); err != nil {
+				fmt.Printf("Error parsing template in line %d as JSON: %v\n", lineNumber, err)
+				return
+			}
+
+			sessionTemplates[key] = templateData
+		}
+
+	case "none":
+		fmt.Printf("Error parsing line %d: No section header found yet. Will continue to search in the next line.\n", lineNumber)
+	default:
+		fmt.Println("Unknown section")
+	}
+}
+
+// applyTemplate applies template data to the session data.
+func applyTemplate(sessionData, templateData map[string]string) map[string]string {
+	for key, value := range templateData {
+		sessionData[key] = value
+	}
+	return sessionData
+}
+
+// setDefaultValues sets default values for missing fields in session data.
+func setDefaultValues(sessionData map[string]string, optionsMap OptionsMap) map[string]string {
+	for key, valueSpec := range optionsMap {
+		if _, exists := sessionData[key]; !exists {
+			sessionData[key] = valueSpec.Default
+		} else {
+			fmt.Println("WTF")
+		}
+	}
+	return sessionData
+}
+
+// applyValueReplacements replaces option values in session data.
+func applyValueReplacements(sessionData map[string]string, optionsMap OptionsMap) map[string]string {
+	for key, valueSpec := range optionsMap {
+		if valueSpec.Options != nil {
+			if val, exists := sessionData[key]; exists {
+				if replacement, found := valueSpec.Options[val]; found {
+					sessionData[key] = replacement
+				}
+			}
+		}
+	}
+	return sessionData
+}
+
+// #endregion
+
+// #region Template
+// parseTemplates parses the templates from the session map.
+func parseTemplates(sessionMap SessionMap) map[string]*template.Template {
+	parsedTemplates := make(map[string]*template.Template)
+	for key, value := range sessionMap {
+		parsedTemplates[key] = template.Must(template.New(key).Parse(value.TmplString))
+	}
+	return parsedTemplates
+}
+
+// renderSession renders the session using the appropriate template.
+func renderSession(session map[string]string, templates map[string]*template.Template) {
+	tmpl, ok := templates[session["session_type"]]
+	if !ok {
+		if session["session_type"] == "" {
+			fmt.Printf("Session type not supported: <NO SESSION TYPE SET>\n")
+			return
+		}
+		fmt.Printf("Session type not supported: %s\n", session["session_type"])
+		return
+	}
+
+	var rendered bytes.Buffer
+	if err := tmpl.Execute(&rendered, session); err != nil {
+		fmt.Printf("Error rendering template for type: %s, error: %v\n", session["session_type"], err)
+		return
+	}
+
+	fmt.Println(rendered.String())
+}
+
+// #endregion
+
+// #region Main Function
+func main() {
+	optionsMap, sessionMap, err := LoadConfigurations("config.json")
+	if err != nil {
+		log.Fatalf("Error loading configurations: %v", err)
+	}
+
+	file, err := os.Open("input.txt")
+	if err != nil {
+		log.Fatalf("Error opening file: %v", err)
+	}
+	defer file.Close()
+
+	var (
+		sessions         []map[string]string                  // Stores session data
+		inSection        string                               // Tracks the current section
+		sessionTemplates = make(map[string]map[string]string) // Stores templates
+		lineNumber       int                                  // Tracks the line number
+	)
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		lineNumber++
+		line := strings.TrimSpace(scanner.Text())
+
+		// Ignore empty lines and comments
+		if line == "" || strings.HasPrefix(line, "#") || strings.HasPrefix(line, "//") {
+			continue
+		}
+
+		// Switch section based on section headers
+		switch line {
+		case "<<templates>>":
+			fmt.Println("Reading section templates")
+			inSection = "templates"
+		case "<<sessions>>":
+			fmt.Println("Reading section sessions")
+			inSection = "sessions"
+		default:
+			handleLine(line, inSection, lineNumber, optionsMap, &sessions, sessionTemplates)
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatalf("Error reading file: %v", err)
+	}
+
+	parsedTemplates := parseTemplates(sessionMap)
+
+	for _, session := range sessions {
+		renderSession(session, parsedTemplates)
+	}
+}
+
+// #endregion
