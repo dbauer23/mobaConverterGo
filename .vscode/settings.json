@@ -12,7 +12,8 @@
         "Netterm",
         "PTVIRG",
         "SSHGW",
-        "Tmpl"
+        "Tmpl",
+        "tmpls"
     ],
     "iis.configDir": ""
 }

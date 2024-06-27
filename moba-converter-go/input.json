@@ -4,23 +4,23 @@
   },
   "sessions": [
     {
-      "sessionName": "abc",
-      "session_type": "ssh",
-      "remote_host": "1.2.3.4",
-      "someotherconfig": "othervalue",
+      "SessionName": "first session",
+      "sessionType": "ssh",
+      "RemoteHost": "1.2.3.4",
+      "Port": "2222",
       "template": "prodsrv"
     },
     {
-      "sessionName": "def",
-      "session_type": "rdp",
-      "remote_host": "5.6.7.8",
+      "SessionName": "another session",
+      "sessionType": "rdp",
+      "RemoteHost": "5.6.7.8",
       "template": "prodsrv"
     }
   ],
   "templates": {
     "prodsrv": {
-      "tab_color": "16711680",
-      "someotherconfig": "othervalue"
+      "CustomTabColor": "16711680",
+      "Username": "my-prod-user"
     }
   }
 }

@@ -27,7 +27,6 @@ type OptionsConfiguration struct {
 
 // SessionConfiguration holds the configuration for each session.
 type SessionConfiguration struct {
-	SessionType    string   `json:"session_type"`
 	TmplString     string   `json:"tmplString"`
 	AllowedOptions []string `json:"allowed_options"`
 	Options        Options  `json:"options,omitempty"`
@@ -41,7 +40,7 @@ type SessionMap map[string]SessionConfiguration
 
 // Config represents the overall configuration with session types and options.
 type Config struct {
-	SessionTypes SessionMap        `json:"session_types"`
+	SessionTypes SessionMap        `json:"sessionTypes"`
 	Options      OptionsMap        `json:"options"`
 	Meta         map[string]string `json:"_meta"`
 }
@@ -132,9 +131,9 @@ func applyValueReplacements(sessionData map[string]string, optionsMap OptionsMap
 	return sessionData
 }
 
-// #region Template
-// parseTemplates parses the templates from the session map.
-func parseTemplates(sessionMap SessionMap) map[string]*template.Template {
+// #region Tmpl
+// parseTmpl parses the templates from the session map.
+func parseTmpl(sessionMap SessionMap) map[string]*template.Template {
 	parsedTemplates := make(map[string]*template.Template)
 	for key, value := range sessionMap {
 		parsedTemplates[key] = template.Must(template.New(key).Parse(value.TmplString))
@@ -143,20 +142,20 @@ func parseTemplates(sessionMap SessionMap) map[string]*template.Template {
 }
 
 // renderSession renders the session using the appropriate template.
-func renderSession(session map[string]string, templates map[string]*template.Template) {
-	tmpl, ok := templates[session["session_type"]]
+func renderSession(session map[string]string, tmpls map[string]*template.Template) {
+	tmpl, ok := tmpls[session["sessionType"]]
 	if !ok {
-		if session["session_type"] == "" {
-			fmt.Fprintf(os.Stderr, "Session type not supported: <NO SESSION TYPE SET>\n")
+		if session["sessionType"] == "" {
+			fmt.Fprintf(os.Stderr, "Session type not supported: <NO SESSION TYPE SET> in session '%s'\n", session["SessionName"])
 			return
 		}
-		fmt.Fprintf(os.Stderr, "Session type not supported: %s\n", session["session_type"])
+		fmt.Fprintf(os.Stderr, "Session type not supported: %s in session '%s'\n", session["sessionType"], session["SessionName"])
 		return
 	}
 
 	var rendered bytes.Buffer
 	if err := tmpl.Execute(&rendered, session); err != nil {
-		fmt.Fprintf(os.Stderr, "Error rendering template for type: %s, error: %v\n", session["session_type"], err)
+		fmt.Fprintf(os.Stderr, "Error rendering template for type: %s, error: %v\n", session["sessionType"], err)
 		return
 	}
 
@@ -217,7 +216,7 @@ func main() {
 
 	for i, session := range sessions {
 		if templateName, hasTemplate := session["template"]; hasTemplate {
-			fmt.Fprintf(os.Stderr, "Session %s uses template %s\n", session["sessionName"], templateName)
+			fmt.Fprintf(os.Stderr, "Session %s uses template %s\n", session["SessionName"], templateName)
 			session = applyTemplate(session, sessionTemplates[templateName])
 		}
 
@@ -227,9 +226,7 @@ func main() {
 		sessions[i] = session
 	}
 
-	parsedTemplates := parseTemplates(sessionMap)
-
 	for _, session := range sessions {
-		renderSession(session, parsedTemplates)
+		renderSession(session, parseTmpl(sessionMap))
 	}
 }

@@ -9,9 +9,9 @@ func TestLoadConfigurations(t *testing.T) {
 	// Prepare a sample JSON configuration
 	configJSON := `
 	{
-		"session_types": {
+		"sessionTypes": {
 			"example_session": {
-				"session_type": "example",
+				"sessionType": "example",
 				"tmplString": "{{.Example}}",
 				"allowed_options": ["example_option"],
 				"options": {
@@ -108,7 +108,7 @@ func TestParseTemplates(t *testing.T) {
 		},
 	}
 
-	templates := parseTemplates(sessionMap)
+	templates := parseTmpl(sessionMap)
 
 	if templates["example_session"] == nil {
 		t.Errorf("Expected template for example_session, got nil")

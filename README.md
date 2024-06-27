@@ -55,21 +55,21 @@ The input data must be a valid JSON with the following format:
   },
   "sessions": [
     {
-      "sessionName": "abc",
-      "session_type": "ssh",
-      "remote_host": "1.2.3.4",
+      "SessionName": "abc",
+      "sessionType": "ssh",
+      "RemoteHost": "1.2.3.4",
       "someotherconfig": "othervalue",
       "template": "prodsrv"
     },
     {
-      "sessionName": "def",
-      "session_type": "rdp",
-      "remote_host": "5.6.7.8",
+      "SessionName": "def",
+      "sessionType": "rdp",
+      "RemoteHost": "5.6.7.8",
     }
   ],
   "templates": {
     "prodsrv": {
-      "tab_color": "16711680",
+      "CustomTabColor": "16711680",
       "someotherconfig": "othervalue"
     }
   }
