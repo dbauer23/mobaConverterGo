@@ -1,6 +1,6 @@
 # moba-converter-go
 
-moba-converter-go is a Go application for [brief description of your project].
+moba-converter-go is a Go application to create MobaXterm Session files by using json data. 
 
 ## Build Instructions
 
@@ -26,21 +26,20 @@ To build and run the project, follow these steps:
     # Example: Build for Windows 64-bit from a Unix-like system
     GOOS=windows GOARCH=amd64 go build -o moba-converter-go.exe
     ```
+    Use the go documentation for more information on cross compilation.
+
 
 ## Usage
-
-
-
 ### Perquisites
 
-1. Configuration File:
-Ensure that `config.json` is located in the same directory as the executable or specify its location using the `--config-file` flag:
+1. **Configuration File:**
+Ensure that `config.json` is located in the same directory as the executable or specify its location using the `--config-file` flag. The config.json serves as the main mapping table between `json` and `.mxtsessions` data. It may needed to be updated to work with future versions of MobaXterm.
 
 ```shell
 ./moba-converter-go.exe --config-file /path/to/config.json
 ```
 
-2. Input Data:
+2. **Input Data:**
 Input data must be provided in one of the two methods specified in the Running the conversion section.
 
 
@@ -55,20 +54,65 @@ The input data must be a valid JSON with the following format:
   },
   "sessions": [
     {
-      "SessionName": "abc",
+      "SessionName": "first session",
       "sessionType": "ssh",
       "RemoteHost": "1.2.3.4",
-      "someotherconfig": "othervalue",
+      "Port": "2222",
       "template": "prodsrv"
     },
     {
-      "SessionName": "def",
+      "SessionName": "another session",
       "sessionType": "rdp",
       "RemoteHost": "5.6.7.8",
+      "template": "prodsrv"
     }
   ],
   "templates": {
     "prodsrv": {
+      "CustomTabColor": "16711680",
+      "Username": "my-prod-user"
+    }
+  }
+}
+```
+
+To get information on all possible Options, use the `--value-info` flag:
+
+```shell
+./moba-converter-go.exe --value-info
+```
+
+### Special Keys
+
+There are two keys which can be used in the input, but do not directly correspond to MobaXterm Setting: 
+
+#### Templates
+
+The Template key allows to apply a set of options to multiple sessions.
+
+*Note:* This is not a Mobaxterm feature and should not be represented as one.
+
+The templating works by creating a set of options which then act as the default options for sessions which are connected to the template. 
+This also means that template values only work if the value is NOT explicitly set in the session itself.
+
+To create a template, add a section to the "templates" section in the input data.
+Then add the "template" key to one or more sessions to apply the options.
+
+```json
+{
+  "_meta": {
+    "description": "Example JSON input file for sessions and templates"
+  },
+  "sessions": [
+    {
+      "SessionName": "first session",
+      "sessionType": "ssh",
+      "RemoteHost": "1.2.3.4",
+      "template": "my-first-template"
+    },
+  ],
+  "templates": {
+    "my-first-template": {
       "CustomTabColor": "16711680",
       "someotherconfig": "othervalue"
     }
@@ -76,15 +120,14 @@ The input data must be a valid JSON with the following format:
 }
 ```
 
-To get information on all possible values, use the `--value-info` flag:
 
-```shell
-./moba-converter-go.exe --value-info
-```
+*Possible Future Options*: 
+- Allow for multiple templates to be applied to one session.
+- Allow for templates to have the template key and allow for recursive templates
 
 ### Running the conversion
 
-To run the conversion you need to provide the converter with the data and it will print out a mobaxterm file to stdout.
+To run the conversion you need to provide the converter with the json data and it will print out a mobaxterm file to stdout.
 
 *Note:* All log and  messages error messages which may be shown are printed to stderr.
 
@@ -109,11 +152,10 @@ Example:
 moba-converter-go.exe --input input.json 1> your-new-mobafile.mxtsessions
 ```
 
-# upcoming features
+Use stream redirection to create a file or pipe it to another app.
+
+# Other
+## Upcoming features
 - output file
-- specify template with flag
-- add support for bookmarks
-
-
-
+- specify template from seperate file with flag
 ...

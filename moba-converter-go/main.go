@@ -132,16 +132,16 @@ func applyValueReplacements(sessionData map[string]string, optionsMap OptionsMap
 }
 
 // #region Tmpl
-// parseTmpl parses the templates from the session map.
+// parseTmpl parses the tmpl strings from the session map.
 func parseTmpl(sessionMap SessionMap) map[string]*template.Template {
-	parsedTemplates := make(map[string]*template.Template)
+	parsedTmpl := make(map[string]*template.Template)
 	for key, value := range sessionMap {
-		parsedTemplates[key] = template.Must(template.New(key).Parse(value.TmplString))
+		parsedTmpl[key] = template.Must(template.New(key).Parse(value.TmplString))
 	}
-	return parsedTemplates
+	return parsedTmpl
 }
 
-// renderSession renders the session using the appropriate template.
+// renderSession renders the session using the appropriate tmpl string.
 func renderSession(session map[string]string, tmpls map[string]*template.Template) {
 	tmpl, ok := tmpls[session["sessionType"]]
 	if !ok {
@@ -155,7 +155,7 @@ func renderSession(session map[string]string, tmpls map[string]*template.Templat
 
 	var rendered bytes.Buffer
 	if err := tmpl.Execute(&rendered, session); err != nil {
-		fmt.Fprintf(os.Stderr, "Error rendering template for type: %s, error: %v\n", session["sessionType"], err)
+		fmt.Fprintf(os.Stderr, "Error rendering tmpl for type: %s, error: %v\n", session["sessionType"], err)
 		return
 	}
 
