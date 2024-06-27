@@ -13,5 +13,6 @@
         "PTVIRG",
         "SSHGW",
         "Tmpl"
-    ]
+    ],
+    "iis.configDir": ""
 }

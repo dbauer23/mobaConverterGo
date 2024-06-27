@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"flag"
@@ -52,8 +53,6 @@ type JSONInput struct {
 	Templates map[string]map[string]string `json:"templates"`
 }
 
-// #endregion
-
 // LoadConfigurations read and unmarshal the JSON configuration file.
 func LoadConfigurations(filename string) (OptionsMap, SessionMap, map[string]string, error) {
 	data, err := os.ReadFile(filename)
@@ -79,7 +78,7 @@ func printVersionInfo(meta map[string]string) {
 	if changedWhen, ok := meta["changed_when"]; ok {
 		fmt.Printf("Changed When: %s\n", changedWhen)
 	} else {
-		fmt.Println("Changed When information not found.")
+		fmt.Print("Changed When information not found.")
 	}
 }
 
@@ -133,8 +132,6 @@ func applyValueReplacements(sessionData map[string]string, optionsMap OptionsMap
 	return sessionData
 }
 
-// #endregion
-
 // #region Template
 // parseTemplates parses the templates from the session map.
 func parseTemplates(sessionMap SessionMap) map[string]*template.Template {
@@ -150,32 +147,34 @@ func renderSession(session map[string]string, templates map[string]*template.Tem
 	tmpl, ok := templates[session["session_type"]]
 	if !ok {
 		if session["session_type"] == "" {
-			fmt.Printf("Session type not supported: <NO SESSION TYPE SET>\n")
+			fmt.Fprintf(os.Stderr, "Session type not supported: <NO SESSION TYPE SET>\n")
 			return
 		}
-		fmt.Printf("Session type not supported: %s\n", session["session_type"])
+		fmt.Fprintf(os.Stderr, "Session type not supported: %s\n", session["session_type"])
 		return
 	}
 
 	var rendered bytes.Buffer
 	if err := tmpl.Execute(&rendered, session); err != nil {
-		fmt.Printf("Error rendering template for type: %s, error: %v\n", session["session_type"], err)
+		fmt.Fprintf(os.Stderr, "Error rendering template for type: %s, error: %v\n", session["session_type"], err)
 		return
 	}
 
 	fmt.Println(rendered.String())
 }
 
-// #endregion
-
 // #region Main Function
 // main function
 func main() {
+	var inputPath string
+	var data []byte
 	infoFlag := flag.Bool("info", false, "Prints the version and changed_when information from the config file.")
 	valueInfo := flag.Bool("value-info", false, "List all possible options in a formatted manner")
+	configPath := flag.String("config-file", "config.json", "Optional path to the config file")
+	flag.StringVar(&inputPath, "input", "", "Path to input JSON file. If not set, reads from stdin.")
 	flag.Parse()
 
-	optionsMap, sessionMap, meta, err := LoadConfigurations("config.json")
+	optionsMap, sessionMap, meta, err := LoadConfigurations(*configPath)
 	if err != nil {
 		log.Fatalf("Error loading configurations: %v", err)
 	}
@@ -190,13 +189,26 @@ func main() {
 		os.Exit(0)
 	}
 
-	file, err := os.ReadFile("input.json")
-	if err != nil {
-		log.Fatalf("Error opening file: %v", err)
+	// Read from file if inputPath is provided
+	if inputPath != "" {
+		data, err = os.ReadFile(inputPath)
+		if err != nil {
+			log.Fatalf("Error opening file: %v", err)
+		}
+	} else {
+		// Read from stdin
+		fmt.Fprintln(os.Stderr, "<<Reading from stdin.>>")
+		scanner := bufio.NewScanner(os.Stdin)
+		for scanner.Scan() {
+			data = append(data, scanner.Bytes()...)
+		}
+		if err := scanner.Err(); err != nil {
+			log.Fatalf("Error reading from stdin: %v", err)
+		}
 	}
 
 	var input JSONInput
-	if err := json.Unmarshal(file, &input); err != nil {
+	if err := json.Unmarshal(data, &input); err != nil {
 		log.Fatalf("Error parsing input file: %v", err)
 	}
 
@@ -205,7 +217,7 @@ func main() {
 
 	for i, session := range sessions {
 		if templateName, hasTemplate := session["template"]; hasTemplate {
-			fmt.Printf("Session %s uses template %s\n", session["sessionName"], templateName)
+			fmt.Fprintf(os.Stderr, "Session %s uses template %s\n", session["sessionName"], templateName)
 			session = applyTemplate(session, sessionTemplates[templateName])
 		}
 
@@ -221,5 +233,3 @@ func main() {
 		renderSession(session, parsedTemplates)
 	}
 }
-
-// #endregion
