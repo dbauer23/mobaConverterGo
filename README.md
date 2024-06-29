@@ -50,11 +50,6 @@ Ensure that `config.json` is located in the same directory as the executable or 
 ```
 
 2. **Input Data:**
-Input data must be provided in one of the two methods specified in the Running the conversion section.
-
-
-### Data format
-
 The input data must be a valid JSON with the following format:
 
 ```json
@@ -82,11 +77,18 @@ The input data must be a valid JSON with the following format:
       "CustomTabColor": "16711680",
       "Username": "my-prod-user"
     }
+  },
+  "folder"{
+    "/folder1":{
+      "Icon": 32
+    }
   }
 }
 ```
 
-To get information on all possible Options, use the `--value-info` flag:
+Each key in in a session in the sessions list represents a Option which is avalible in the MobaXterm GUI. 
+
+To get information on all possible Options which can be used in the Sessions section, use the `--value-info` flag:
 
 ```shell
 ./moba-converter-go.exe --value-info
@@ -95,7 +97,7 @@ To get information on all possible Options, use the `--value-info` flag:
 ### Special Keys
 There are two keys which can be used in the input, but do not directly correspond to MobaXterm Setting: 
 
-#### FolderPath (TODO)
+#### FolderPath
 With this key you can specify the folder path in which the session should reside.
 
 The folders use `/` to separate folders and start with `/` as the root folder object.
@@ -131,7 +133,7 @@ Folders will be Implicitly created as soon as they are used at least once in a s
     ],
   "templates": {},
   "folders":{
-    "/folder1":{
+    "/Test":{
       "Icon":"32"
     }
   }
@@ -142,7 +144,7 @@ Folders will be Implicitly created as soon as they are used at least once in a s
 
 The Template key allows to apply a set of options to multiple sessions.
 
-*Note:* This is not a Mobaxterm feature and should not be seen as one.
+*Note: This is not a Mobaxterm feature and should not be seen as one.*
 
 Templating works by creating a set of options which then act as the default options for sessions which are connected to the template. 
 This also means that template values only work if the value is NOT explicitly set in the session itself.
@@ -173,14 +175,11 @@ Then add the "template" key to one or more sessions to apply the options.
 ```
 
 
-*Possible Future Options*: 
-- Allow for multiple templates to be applied to one session.
-- Allow for templates to have the template key and allow for recursive templates
 
 ### Running the conversion
 
 To run the conversion you need to provide the converter with the json data and it will print out a mobaxterm file to converted.mxtsessions.
-To change the output file, use the --output <> flag.
+To change the output file, use the `--output <path>` flag.
 
 *Note:* All log and  messages error messages which may be shown are printed to stderr.
 
@@ -188,7 +187,7 @@ moba-converter-go can accept session data in one of two ways:
 
 1. **From sdtin**
 In its default mode moba-converter-go expects json data from stdin until EOF. The easiest way to achieve this is to pipe data from another tool to moba-converter-go.
-This is very helpful when obtaining the session data from another tool via an api wrapper.
+This is very helpful when obtaining the session data using a script and now want to create a mxtsessions file.
 
 Example: 
 ```bash
@@ -208,8 +207,10 @@ moba-converter-go.exe --input input.json --output your-new-mobafile.mxtsessions
 
 # Other
 ## TODO
-- specify template from separate file with flag
+- specify template from separate file with `--templates` flag
 - make template key optional
 - fix some stuff with calculated vars
 - ENV var to set basic parameters like
   - don't allow risky options
+- Allow for multiple templates to be applied to one session.
+- Allow for templates to have the template key and allow for recursive templates
