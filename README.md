@@ -34,6 +34,12 @@ To build and run the project, follow these steps:
 
 
 ## Usage
+
+### Supported sessions
+
+- ssh 
+
+
 ### Perquisites
 
 1. **Configuration File:**
