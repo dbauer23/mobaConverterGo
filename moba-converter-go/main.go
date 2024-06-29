@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"text/template"
 )
 
@@ -50,6 +51,7 @@ type JSONInput struct {
 	Meta      map[string]interface{}       `json:"_meta"`
 	Sessions  []map[string]string          `json:"sessions"`
 	Templates map[string]map[string]string `json:"templates"`
+	Folders   map[string]map[string]string `json:"folders,omitempty"`
 }
 
 // LoadConfigurations read and unmarshal the JSON configuration file.
@@ -114,6 +116,10 @@ func setDefaultValues(sessionData map[string]string, optionsMap OptionsMap) map[
 			sessionData[key] = valueSpec.Default
 		}
 	}
+	// Custom default for folder
+	if _, exists := sessionData["folder"]; !exists {
+		sessionData["folder"] = "/"
+	}
 	return sessionData
 }
 
@@ -142,7 +148,8 @@ func parseTmpl(sessionMap SessionMap) map[string]*template.Template {
 }
 
 // renderSession renders the session using the appropriate tmpl string.
-func renderSession(session map[string]string, tmpls map[string]*template.Template) {
+func renderSession(session map[string]string, tmpls map[string]*template.Template, wr *bufio.Writer) {
+
 	tmpl, ok := tmpls[session["sessionType"]]
 	if !ok {
 		if session["sessionType"] == "" {
@@ -159,17 +166,37 @@ func renderSession(session map[string]string, tmpls map[string]*template.Templat
 		return
 	}
 
-	fmt.Println(rendered.String())
+	fmt.Fprintf(wr, "%s\r\n", rendered.String())
 }
 
 // #region Main Function
+
+func groupByFolder(slice []map[string]string) map[string][]map[string]string {
+	groupKey := "folder"
+	grouped := make(map[string][]map[string]string)
+	for _, item := range slice {
+		if value, exists := item[groupKey]; exists {
+			grouped[value] = append(grouped[value], item)
+		}
+	}
+	return grouped
+}
+
+func check(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
 // main function
 func main() {
 	var inputPath string
+	var outputPath string
 	var data []byte
 	infoFlag := flag.Bool("info", false, "Prints the version and changed_when information from the config file.")
 	valueInfo := flag.Bool("value-info", false, "List all possible options in a formatted manner")
 	configPath := flag.String("config-file", "config.json", "Optional path to the config file")
+	flag.StringVar(&outputPath, "output", "converted.mxtsessions", "Path to write the output mxtsessions file ")
 	flag.StringVar(&inputPath, "input", "", "Path to input JSON file. If not set, reads from stdin.")
 	flag.Parse()
 
@@ -213,6 +240,12 @@ func main() {
 
 	sessionTemplates := input.Templates
 	sessions := input.Sessions
+	folders := input.Folders
+
+	// Iterate over input sessions and
+	//  - Apply templates
+	//	- Set defaults
+	//  - replace values
 
 	for i, session := range sessions {
 		if templateName, hasTemplate := session["template"]; hasTemplate {
@@ -226,7 +259,42 @@ func main() {
 		sessions[i] = session
 	}
 
-	for _, session := range sessions {
-		renderSession(session, parseTmpl(sessionMap))
+	// Group list by folder
+	groupedSessions := groupByFolder(sessions)
+
+	// Open output file
+	f, err := os.Create(outputPath)
+	check(err)
+	defer f.Close()
+
+	writer := bufio.NewWriter(f)
+
+	fmt.Fprintf(writer, "[Bookmarks]\r\nSubRep=\r\nImgNum=42\r\n")
+	idx := 0
+	for currentFolder, sessions := range groupedSessions {
+		if currentFolder != "/" {
+			idx++
+			// Empty line after each Folder Block
+			fmt.Fprintln(writer, "")
+			check(err)
+			// Default Image Number
+			imageNum := "41"
+			//  Set new Image number if folder is specified
+			if _, exists := folders[currentFolder]; exists {
+				imageNum = folders[currentFolder]["Icon"]
+			}
+
+			// Print new folder heading
+			// Also replace "/" with "\" since moba needs backslashes...
+			clearedFolderPath := strings.TrimLeft(strings.ReplaceAll(currentFolder, "/", "\\"), "\\")
+			fmt.Fprintf(writer, "[Bookmarks_%d]\r\nSubRep=%s\r\nImgNum=%s\r\n", idx, clearedFolderPath, imageNum)
+			check(err)
+		}
+
+		for _, session := range sessions {
+			renderSession(session, parseTmpl(sessionMap), writer)
+		}
+
 	}
+	writer.Flush()
 }

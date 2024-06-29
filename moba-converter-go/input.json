@@ -12,15 +12,21 @@
     },
     {
       "SessionName": "another session",
-      "sessionType": "rdp",
+      "sessionType": "ssh",
       "RemoteHost": "5.6.7.8",
-      "template": "prodsrv"
+      "template": "prodsrv",
+      "folder": "/Test"
     }
   ],
   "templates": {
     "prodsrv": {
       "CustomTabColor": "16711680",
       "Username": "my-prod-user"
+    }
+  },
+  "folders":{
+    "/Test":{
+      "Icon":"31"
     }
   }
 }

@@ -2,6 +2,10 @@
 
 moba-converter-go is a Go application to create MobaXterm Session files by using json data. 
 
+Author: DominikBauer1
+
+The session file format was used from: [.mxtsessions file format by Ruzgfpegk](https://gist.github.com/Ruzgfpegk/ab597838e4abbe8de30d7224afd062ea)
+
 ## Build Instructions
 
 To build and run the project, follow these steps:
@@ -83,16 +87,58 @@ To get information on all possible Options, use the `--value-info` flag:
 ```
 
 ### Special Keys
-
 There are two keys which can be used in the input, but do not directly correspond to MobaXterm Setting: 
+
+#### FolderPath (TODO)
+With this key you can specify the folder path in which the session should reside.
+
+The folders use `/` to separate folders and start with `/` as the root folder object.
+The root folder is implicitly assumed and does not need to be specified.
+Trailing slashes are ignored.
+
+Example with root folder
+```json
+"FolderPath": "/"
+```
+
+Example with subfolder
+```json
+"FolderPath": "/my-ssh-sessions"
+```
+
+Folders will be Implicitly created as soon as they are used at least once in a session path. To customize the icon please use the optional key "folders" in the input data.
+
+
+```json
+{
+  "_meta": {
+    "description": "Example for Folder Section"
+  },
+  "sessions": [    
+      {
+        "SessionName": "another session",
+        "sessionType": "ssh",
+        "RemoteHost": "5.6.7.8",
+        "template": "prodsrv",
+        "folder": "/Test"
+      }
+    ],
+  "templates": {},
+  "folders":{
+    "/folder1":{
+      "Icon":"32"
+    }
+  }
+}
+```
 
 #### Templates
 
 The Template key allows to apply a set of options to multiple sessions.
 
-*Note:* This is not a Mobaxterm feature and should not be represented as one.
+*Note:* This is not a Mobaxterm feature and should not be seen as one.
 
-The templating works by creating a set of options which then act as the default options for sessions which are connected to the template. 
+Templating works by creating a set of options which then act as the default options for sessions which are connected to the template. 
 This also means that template values only work if the value is NOT explicitly set in the session itself.
 
 To create a template, add a section to the "templates" section in the input data.
@@ -127,7 +173,8 @@ Then add the "template" key to one or more sessions to apply the options.
 
 ### Running the conversion
 
-To run the conversion you need to provide the converter with the json data and it will print out a mobaxterm file to stdout.
+To run the conversion you need to provide the converter with the json data and it will print out a mobaxterm file to converted.mxtsessions.
+To change the output file, use the --output <> flag.
 
 *Note:* All log and  messages error messages which may be shown are printed to stderr.
 
@@ -140,7 +187,7 @@ This is very helpful when obtaining the session data from another tool via an ap
 Example: 
 ```bash
 # Pipe data from api script
-my-api-wrapper | moba-converter-go.exe 1> your-new-mobafile.mxtsessions
+my-api-wrapper | moba-converter-go.exe --output my-sessions.mxtsessions
 ```
 
 2. **From File**
@@ -149,13 +196,14 @@ If you have an existing file with json data it can be used by using the --input 
 Example: 
 ```bash
 # Read json data from file
-moba-converter-go.exe --input input.json 1> your-new-mobafile.mxtsessions
+moba-converter-go.exe --input input.json --output your-new-mobafile.mxtsessions
 ```
 
-Use stream redirection to create a file or pipe it to another app.
 
 # Other
-## Upcoming features
-- output file
-- specify template from seperate file with flag
-...
+## TODO
+- specify template from separate file with flag
+- make template key optional
+- fix some stuff with calculated vars
+- ENV var to set basic parameters like
+  - don't allow risky options
