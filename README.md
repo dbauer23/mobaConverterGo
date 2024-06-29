@@ -6,6 +6,8 @@ Author: DominikBauer1
 
 The session file format was used from: [.mxtsessions file format by Ruzgfpegk](https://gist.github.com/Ruzgfpegk/ab597838e4abbe8de30d7224afd062ea)
 
+(This a work in Progress, and my first shot at a GO Project.)
+
 ## Build Instructions
 
 To build and run the project, follow these steps:
