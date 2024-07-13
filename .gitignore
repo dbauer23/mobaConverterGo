@@ -6,3 +6,5 @@
 !.vscode/*.code-snippets
 
 converted.mxtsessions
+
+*.exe
