@@ -14,7 +14,7 @@ func init() {
 
 var infoCmd = &cobra.Command{
 	Use:   "info",
-	Short: "Show information about the config file.",
+	Short: "Print some basic meta information about the loaded config.",
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
 		configPath, _ := cmd.Flags().GetString("configPath")

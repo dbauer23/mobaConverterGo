@@ -6,7 +6,7 @@ Author: DominikBauer1
 
 The session file format was used from: [.mxtsessions file format by Ruzgfpegk](https://gist.github.com/Ruzgfpegk/ab597838e4abbe8de30d7224afd062ea)
 
-(This a work in Progress, and my first shot at a GO Project.)
+(This a work in Progress)
 
 ## Build Instructions
 
@@ -41,17 +41,12 @@ To build and run the project, follow these steps:
 
 - ssh 
 
+#### Config File
+The converter uses a config file for the conversion. (See [configFile](docs/CONFIG.md) for more information.)
 
-### Perquisites
 
-1. **Configuration File:**
-Ensure that `config.json` is located in the same directory as the executable or specify its location using the `--config-file` flag. The config.json serves as the main mapping table between `json` and `.mxtsessions` data. It may needed to be updated to work with future versions of MobaXterm.
+### Input Data
 
-```shell
-./moba-converter-go.exe --config-file /path/to/config.json
-```
-
-2. **Input Data:**
 The input data must be a valid JSON with the following format:
 
 ```json
@@ -178,6 +173,7 @@ Then add the "template" key to one or more sessions to apply the options.
 
 
 
+
 ### Running the conversion
 
 To run the conversion you need to provide the converter with the json data and it will print out a mobaxterm file to converted.mxtsessions.
@@ -194,7 +190,7 @@ This is very helpful when obtaining the session data using a script and now want
 Example: 
 ```bash
 # Pipe data from api script
-my-api-wrapper | moba-converter-go.exe --output my-sessions.mxtsessions
+my-api-wrapper | moba-converter-go.exe convert json2moba --output my-sessions.mxtsessions
 ```
 
 2. **From File**
@@ -203,7 +199,7 @@ If you have an existing file with json data it can be used by using the --input 
 Example: 
 ```bash
 # Read json data from file
-moba-converter-go.exe --input input.json --output your-new-mobafile.mxtsessions
+moba-converter-go.exe convert json2moba --input input.json --output your-new-mobafile.mxtsessions
 ```
 
 
