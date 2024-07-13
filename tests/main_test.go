@@ -1,6 +1,9 @@
 package main
 
 import (
+	"moba-converter-go/internal/config"
+	"moba-converter-go/internal/mxtsession"
+	"moba-converter-go/internal/utils"
 	"os"
 	"testing"
 )
@@ -43,7 +46,7 @@ func TestLoadConfigurations(t *testing.T) {
 	defer os.Remove(tempFile)
 
 	// Load configurations
-	optionsMap, sessionMap, meta, err := LoadConfigurations(tempFile)
+	optionsMap, sessionMap, meta, err := config.LoadConfigurations(tempFile)
 	if err != nil {
 		t.Fatalf("Error loading configurations: %v", err)
 	}
@@ -64,7 +67,7 @@ func TestApplyTemplate(t *testing.T) {
 	sessionData := map[string]string{"key1": "value1"}
 	templateData := map[string]string{"key2": "value2"}
 
-	result := applyTemplate(sessionData, templateData)
+	result := utils.ApplyTemplate(sessionData, templateData)
 
 	if result["key1"] != "value1" || result["key2"] != "value2" {
 		t.Errorf("Template was not applied correctly")
@@ -73,12 +76,12 @@ func TestApplyTemplate(t *testing.T) {
 
 func TestSetDefaultValues(t *testing.T) {
 	sessionData := map[string]string{"key1": "value1"}
-	optionsMap := OptionsMap{
+	optionsMap := config.OptionsMap{
 		"key1": {Default: "default1"},
 		"key2": {Default: "default2"},
 	}
 
-	result := setDefaultValues(sessionData, optionsMap)
+	result := utils.SetDefaultValues(sessionData, optionsMap)
 
 	if result["key1"] != "value1" {
 		t.Errorf("Expected key1 to be value1, got %s", result["key1"])
@@ -90,11 +93,11 @@ func TestSetDefaultValues(t *testing.T) {
 
 func TestApplyValueReplacements(t *testing.T) {
 	sessionData := map[string]string{"key1": "old_value"}
-	optionsMap := OptionsMap{
-		"key1": {Options: Options{"old_value": "new_value"}},
+	optionsMap := config.OptionsMap{
+		"key1": {Options: config.Options{"old_value": "new_value"}},
 	}
 
-	result := applyValueReplacements(sessionData, optionsMap)
+	result := utils.ApplyValueReplacements(sessionData, optionsMap)
 
 	if result["key1"] != "new_value" {
 		t.Errorf("Expected key1 to be new_value, got %s", result["key1"])
@@ -102,13 +105,13 @@ func TestApplyValueReplacements(t *testing.T) {
 }
 
 func TestParseTemplates(t *testing.T) {
-	sessionMap := SessionMap{
+	sessionMap := config.SessionMap{
 		"example_session": {
 			TmplString: "{{.Example}}",
 		},
 	}
 
-	templates := parseTmpl(sessionMap)
+	templates := mxtsession.ParseTmpl(sessionMap)
 
 	if templates["example_session"] == nil {
 		t.Errorf("Expected template for example_session, got nil")
