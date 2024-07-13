@@ -63,9 +63,7 @@ func convertJson2Moba(cmd *cobra.Command, args []string) {
 		log.Fatalf("Error parsing input file: %v", err)
 	}
 
-	sessionTemplates := input.Templates
 	sessions := input.Sessions
-	folders := input.Folders
 
 	// Iterate over input sessions and
 	//  - Apply templates
@@ -75,7 +73,7 @@ func convertJson2Moba(cmd *cobra.Command, args []string) {
 	for i, session := range sessions {
 		if templateName, hasTemplate := session["template"]; hasTemplate {
 			fmt.Fprintf(os.Stderr, "Session %s uses template %s\n", session["SessionName"], templateName)
-			session = utils.ApplyTemplate(session, sessionTemplates[templateName])
+			session = utils.ApplyTemplate(session, input.Templates[templateName])
 		}
 
 		session = utils.SetDefaultValues(session, optionsMap)
@@ -105,8 +103,8 @@ func convertJson2Moba(cmd *cobra.Command, args []string) {
 			// Default Image Number
 			imageNum := "41"
 			//  Set new Image number if folder is specified
-			if _, exists := folders[currentFolder]; exists {
-				imageNum = folders[currentFolder]["Icon"]
+			if f, exists := input.Folders[currentFolder]; exists {
+				imageNum = f["Icon"]
 			}
 
 			// Print new folder heading
@@ -117,7 +115,7 @@ func convertJson2Moba(cmd *cobra.Command, args []string) {
 		}
 
 		for _, session := range sessions {
-			mxtsession.RenderSession(session, mxtsession.ParseTmpl(sessionMap), writer)
+			mxtsession.RenderSession(session, sessionMap, writer)
 		}
 
 	}

@@ -2,7 +2,6 @@ package main
 
 import (
 	"moba-converter-go/internal/config"
-	"moba-converter-go/internal/mxtsession"
 	"moba-converter-go/internal/utils"
 	"os"
 	"testing"
@@ -101,19 +100,5 @@ func TestApplyValueReplacements(t *testing.T) {
 
 	if result["key1"] != "new_value" {
 		t.Errorf("Expected key1 to be new_value, got %s", result["key1"])
-	}
-}
-
-func TestParseTemplates(t *testing.T) {
-	sessionMap := config.SessionMap{
-		"example_session": {
-			TmplString: "{{.Example}}",
-		},
-	}
-
-	templates := mxtsession.ParseTmpl(sessionMap)
-
-	if templates["example_session"] == nil {
-		t.Errorf("Expected template for example_session, got nil")
 	}
 }

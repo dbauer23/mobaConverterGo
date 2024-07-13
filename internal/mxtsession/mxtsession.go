@@ -10,7 +10,7 @@ import (
 )
 
 // parseTmpl parses the tmpl strings from the session map.
-func ParseTmpl(sessionMap config.SessionMap) map[string]*template.Template {
+func parseTmpl(sessionMap config.SessionMap) map[string]*template.Template {
 	parsedTmpl := make(map[string]*template.Template)
 	for key, value := range sessionMap {
 		parsedTmpl[key] = template.Must(template.New(key).Parse(value.TmplString))
@@ -19,7 +19,9 @@ func ParseTmpl(sessionMap config.SessionMap) map[string]*template.Template {
 }
 
 // renderSession renders the session using the appropriate tmpl string.
-func RenderSession(session map[string]string, tmpls map[string]*template.Template, wr *bufio.Writer) {
+func RenderSession(session map[string]string, sessionMap config.SessionMap, wr *bufio.Writer) {
+
+	tmpls := parseTmpl(sessionMap)
 
 	tmpl, ok := tmpls[session["sessionType"]]
 	if !ok {
