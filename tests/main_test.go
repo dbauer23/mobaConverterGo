@@ -13,7 +13,7 @@ func TestLoadConfigurations(t *testing.T) {
 	{
 		"sessionTypes": {
 			"example_session": {
-				"sessionType": "example",
+				"SessionType": "example",
 				"tmplString": "{{.Example}}",
 				"allowed_options": ["example_option"],
 				"options": {

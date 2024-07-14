@@ -29,7 +29,7 @@
       "section": "General",
       "help": "Indicates the session type. For SSH connections, it's always '0'.",
       "options": {
-        "SSH": "0"
+        "ssh": "0"
       }
     },
     "RemoteHost": {
@@ -102,7 +102,7 @@
       }
     },
     "DontSpecifyUsername": {
-      "default_value": "0",
+      "default_value": "false",
       "section": "General",
       "help": "Indicates whether to specify a username. '-1' to enable, '0' if a specific username is used.",
       "options": {
@@ -113,7 +113,7 @@
       }
     },
     "RemoteEnvironment": {
-      "default_value": "0",
+      "default_value": "Interactive Shell",
       "section": "Advanced SSH settings",
       "help": "Specifies the remote environment. (Not yet finished)",
       "options": {
@@ -193,7 +193,7 @@
       }
     },
     "FileBrowserSCPOverSFTP": {
-      "default_value": "0",
+      "default_value": "SSH/None",
       "section": "Advanced SSH settings",
       "help": "Use SCP over SFTP for file browsing. '-1' for SCP, '0' for SSH or None.  #TODO: CALC",
       "options": {
@@ -450,7 +450,7 @@
       }
     },
     "ShowBoldFontAsBrighter": {
-      "default_value": "-1",
+      "default_value": "true",
       "section": "Terminal settings",
       "help": "Show Bold Font As Brighter",
       "options": {
@@ -471,7 +471,7 @@
       "help": "each text starts with '12:2:0:' and ends with '`__PIPE__`' (currently buggy, they get concatenated in v22.3)"
     },
     "PasteDelay": {
-      "default_value": "0",
+      "default_value": "Auto",
       "section": "Terminal settings",
       "help": "Self explained",
       "options": {

@@ -204,7 +204,7 @@ moba-converter-go.exe convert json2moba --input input.json --output your-new-mob
 
 
 # Other
-## TODO
+## TODO:
 - specify template from separate file with `--templates` flag
 - make template key optional
 - fix some stuff with calculated vars
@@ -212,3 +212,4 @@ moba-converter-go.exe convert json2moba --input input.json --output your-new-mob
   - don't allow risky options
 - Allow for multiple templates to be applied to one session.
 - Allow for templates to have the template key and allow for recursive templates
+- Make matching case-insensitive

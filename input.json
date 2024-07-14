@@ -5,15 +5,16 @@
   "sessions": [
     {
       "SessionName": "first session",
-      "sessionType": "ssh",
+      "SessionType": "ssh",
       "RemoteHost": "1.2.3.4",
       "Port": "2222",
       "template": "prodsrv"
     },
     {
       "SessionName": "another session",
-      "sessionType": "ssh",
+      "SessionType": "ssh",
       "RemoteHost": "5.6.7.8",
+      "X11Forwarding": "true",
       "template": "prodsrv",
       "folder": "/Test"
     }

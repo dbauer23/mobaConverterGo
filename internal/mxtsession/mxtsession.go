@@ -19,23 +19,26 @@ func parseTmpl(sessionMap config.SessionMap) map[string]*template.Template {
 }
 
 // renderSession renders the session using the appropriate tmpl string.
-func RenderSession(session map[string]string, sessionMap config.SessionMap, wr *bufio.Writer) {
+func RenderSession(session map[string]string, sessionConfig config.SessionMap, wr *bufio.Writer) {
 
-	tmpls := parseTmpl(sessionMap)
+	tmpls := parseTmpl(sessionConfig)
 
-	tmpl, ok := tmpls[session["sessionType"]]
+	// FIXME:THis is ugly and should be dynamic (like it was before)
+
+	tmpl, ok := tmpls["ssh"]
+
 	if !ok {
-		if session["sessionType"] == "" {
+		if session["SessionType"] == "" {
 			fmt.Fprintf(os.Stderr, "Session type not supported: <NO SESSION TYPE SET> in session '%s'\n", session["SessionName"])
 			return
 		}
-		fmt.Fprintf(os.Stderr, "Session type not supported: %s in session '%s'\n", session["sessionType"], session["SessionName"])
+		fmt.Fprintf(os.Stderr, "Session type not supported: %s in session '%s'\n", session["SessionType"], session["SessionName"])
 		return
 	}
 
 	var rendered bytes.Buffer
 	if err := tmpl.Execute(&rendered, session); err != nil {
-		fmt.Fprintf(os.Stderr, "Error rendering tmpl for type: %s, error: %v\n", session["sessionType"], err)
+		fmt.Fprintf(os.Stderr, "Error rendering tmpl for type: %s, error: %v\n", session["SessionType"], err)
 		return
 	}
 
