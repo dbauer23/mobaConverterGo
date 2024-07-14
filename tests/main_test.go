@@ -45,10 +45,7 @@ func TestLoadConfigurations(t *testing.T) {
 	defer os.Remove(tempFile)
 
 	// Load configurations
-	optionsMap, sessionMap, meta, err := config.LoadConfigurations(tempFile)
-	if err != nil {
-		t.Fatalf("Error loading configurations: %v", err)
-	}
+	optionsMap, sessionMap, meta := config.LoadConfigurations(tempFile)
 
 	// Check if configurations are loaded correctly
 	if _, exists := optionsMap["example_option"]; !exists {
