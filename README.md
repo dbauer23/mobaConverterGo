@@ -93,10 +93,10 @@ The goal is to have an easier readable and writable session format.
 
 Each key in in a session in the sessions list represents a Option which is available in the MobaXterm GUI. 
 
-To get information on all possible Options which can be used in the Sessions section, use the `--value-info` flag:
+To get information on all possible Options which can be used in the Sessions section, use the `config show` command:
 
 ```shell
-./moba-converter-go.exe --value-info
+./moba-converter-go.exe config show
 ```
 
 ### Special Keys
@@ -190,7 +190,7 @@ To change the output file, use the `--output <path>` flag.
 
 moba-converter-go can accept session data in one of two ways: 
 
-1. **From sdtin**
+1. **From stdin**
 In its default mode moba-converter-go expects json data from stdin until EOF. The easiest way to achieve this is to pipe data from another tool to moba-converter-go.
 This is very helpful when obtaining the session data using a script and now want to create a mxtsessions file.
 
