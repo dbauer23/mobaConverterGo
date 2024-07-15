@@ -92,7 +92,7 @@ func convertJson2Moba(cmd *cobra.Command, args []string) {
 		}
 
 		for _, session := range sessions {
-			mxtsession.RenderSession(session, sessionMap, writer)
+			mxtsession.RenderSession(session, sessionMap, optionsMap, writer)
 		}
 
 	}

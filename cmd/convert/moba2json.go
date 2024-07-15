@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"moba-converter-go/internal/config"
+	"moba-converter-go/internal/mxtsession"
+	"moba-converter-go/internal/utils"
 	"os"
 	"regexp"
 	"strings"
@@ -18,6 +20,8 @@ var inputPathM2J string
 
 var jsonOutput config.JSONInput
 
+var configPath string
+
 func init() {
 	convertCmd.AddCommand(moba2jsonCmd)
 	moba2jsonCmd.Flags().StringVar(&outputPathM2J, "output", "converted.json", "Path to write the output json file.")
@@ -26,6 +30,7 @@ func init() {
 
 	jsonOutput.Meta = make(map[string]interface{})
 	jsonOutput.Templates = make(map[string]map[string]string)
+
 }
 
 var moba2jsonCmd = &cobra.Command{
@@ -37,6 +42,11 @@ var moba2jsonCmd = &cobra.Command{
 }
 
 func convertMoba2Json(cmd *cobra.Command, args []string) {
+
+	configPath, _ = cmd.Flags().GetString("configPath")
+	optionsMap, sessionMap, _ := config.LoadConfigurations(configPath)
+
+	reduce, _ := cmd.Flags().GetBool("reduce")
 
 	// Read moba file
 	var data []byte
@@ -58,13 +68,13 @@ func convertMoba2Json(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	regex_sessionType := regexp.MustCompile(`[^%]+#(\d)%`)
+	regex_sessionType := regexp.MustCompile(`[^%]+#(?P<sessionType>\d)%`)
 
 	regex_bookmark := regexp.MustCompile(`\[Bookmarks(_\d+)?\]`)
 	regex_SubRep := regexp.MustCompile("SubRep=(.*)")
-	regex_ImgNum := regexp.MustCompile(`ImgNum=\d+`)
+	regex_ImgNum := regexp.MustCompile(`ImgNum=(\d+)`)
 
-	var isInBookmarkHeader bool // defines if we are in a bookmark header. We the expect SubRep and ImgNum as the next lines
+	var isInBookmarkHeader bool // Defines if we are in a bookmark header. We the expect SubRep and ImgNum as the next lines
 	var currentFolder string
 	var currentImgNum string
 
@@ -73,7 +83,6 @@ func convertMoba2Json(cmd *cobra.Command, args []string) {
 	// iterate over mxt line by line
 
 	for i, line := range strings.Split(string(data), "\n") {
-		fmt.Println("Working on line ", i)
 		if line == "" {
 			// Skip empty lines
 			continue
@@ -81,11 +90,10 @@ func convertMoba2Json(cmd *cobra.Command, args []string) {
 
 		// Parse Bookmark lines
 		if isInBookmarkHeader {
-			// TODO: Use the folder info and add it to the json output
-			if m := regex_SubRep.FindString(line); m != "" {
-				currentFolder = m
-			} else if m := regex_ImgNum.FindString(line); m != "" {
-				currentImgNum = m
+			if m := regex_SubRep.FindStringSubmatch(line); len(m) > 0 {
+				currentFolder = strings.ReplaceAll(strings.Trim(m[1], "\r"), "\\", "/")
+			} else if m := regex_ImgNum.FindStringSubmatch(line); len(m) > 0 {
+				currentImgNum = m[1]
 				isInBookmarkHeader = false
 			} else {
 				log.Fatalf("Expected SubRep or ImgNum line. Got %s in line %d", line, i)
@@ -98,15 +106,21 @@ func convertMoba2Json(cmd *cobra.Command, args []string) {
 			isInBookmarkHeader = true
 		} else {
 			// Now this should be a session line
-			sessionSlice = append(sessionSlice, evalSession(regex_sessionType.FindString(line), line, i, currentFolder, currentImgNum))
+			c_session := evalSession(regex_sessionType.FindStringSubmatch(line)[1], line, i, currentImgNum, optionsMap, sessionMap)
+			// Add folder to session
+			if currentFolder != "" {
+				// FIXME: This is ugly. There should always a folder exported . This currently doesn't work, since j2m doesn't accept "/" or ""
+				c_session["folder"] = currentFolder
+			}
+
+			// Reduce vars  => only show vars which are non-default (if --reduce is set)
+			if reduce {
+				c_session = utils.ReduceOptions(c_session, optionsMap)
+			}
+
+			sessionSlice = append(sessionSlice, c_session)
 		}
 	}
-	// Finished session section
-	fmt.Print(sessionSlice)
-
-	// Build json
-
-	fmt.Println("")
 
 	jsonOutput.Meta["description"] = "This file was created using moba-converter-go"
 	jsonOutput.Sessions = sessionSlice
@@ -116,9 +130,6 @@ func convertMoba2Json(cmd *cobra.Command, args []string) {
 		log.Fatalln(err)
 	}
 
-	fmt.Println(string(xx))
-	fmt.Println(outputPathM2J)
-
 	err = os.WriteFile(outputPathM2J, xx, 0644)
 	if err != nil {
 		log.Fatalln("Error writing to file")
@@ -126,23 +137,16 @@ func convertMoba2Json(cmd *cobra.Command, args []string) {
 
 }
 
-func evalSession(sessionType string, line string, lineNumber int, folder string, ImgNum string) map[string]string {
+func evalSession(sessionType string, line string, lineNumber int, ImgNum string, optionsMap config.OptionsMap, sessionMap config.SessionMap) map[string]string {
 
-	// TODO: use the session type and set tmpl
-	tmpl := "{{.SessionName}}={{ .Logout }}#{{ .IconNumber }}#{{ .SessionType }}%{{ .RemoteHost }}%{{ .Port }}%{{ .Username }}%%{{ .X11Forwarding }}%{{ .Compression }}%{{ .ExecuteCommand }}%{{ .SSHGWHostList }}%{{ .SSHGWPortList }}%{{ .SSHGWUserList }}%{{ .DoNotExitAfterLoginCommand }}%{{ .DontSpecifyUsername }}%{{ .RemoteEnvironment }}%{{ .PrivateKeyPath }}%{{ .SSHGWPrivateKeyList }}%{{ .SSHBrowserType }}%{{ .FollowSSHPath }}%0%{{ .ProxyType }}%{{ .ProxyHost }}%{{ .ProxyPort }}%{{ .ProxyLogin }}%{{ .AdaptLocales }}%{{ .FileBrowserSCPOverSFTP }}%{{ .FileBrowserProtocol }}%{{ .LocalProxyCommand }}%{{ .SSHProtocolVersion }}%{{ .KeyExchangeAlgos }}%{{ .HostKeyTypes }}%{{ .Ciphers }}%{{ .DisconnectIfAuthSucceedsTrivially }}%{{ .PreferHostKeyAlgorithms }}%{{ .AttemptAuthUsingSSHAgent }}%{{ .AllowAgentForwarding }}#{{ .TerminalFont }}%{{ .FontSize }}%{{ .TerminalFontBold }}%%{{ .AppendWindowsPath }}%{{ .TerminalCharset }}%{{ .Foreground }}%{{ .Background }}%{{ .CursorColor }}%{{ .CursorType }}%{{ .BackspaceSendsCtrlH }}%{{ .LogOutput }}%{{ .LogFolderPath }}%{{ .TerminalType }}%{{ .LockTerminalTitle }}%%{{ .ColorScheme }}%{{ .TerminalRows }}%{{ .TerminalColumns }}%{{ .ForceFixedRowsCols }}%{{ .SyntaxHighlighting }}%{{ .ShowBoldFontAsBrighter }}%{{ .CustomMacroType }}%{{ .CustomMacroText }}%{{ .PasteDelay }}%{{ .FontCharset }}%{{ .FontAntialiasing }}%{{ .FontLigatures }}#{{ .StartSessionIn }}#{{ .Comments }}#{{ .CustomTabColor }}"
+	tmpl := mxtsession.GetTmplBySessionTypeId(sessionType, optionsMap, sessionMap)
 
 	vars, err := extractVariables(tmpl, line)
 	if err != nil {
 		log.Fatalf("Error in Line %d: %s", lineNumber, err)
 	}
 
-	// TODO: convert session type to key
-
-	vars["SessionType"] = "ssh"
-
-	// TODO: Convert all vars to their text form if possible
-
-	// TODO: Reduce vars  => only show vars which are non-default (if --reduce is set)
+	vars = utils.ReverseValueReplacements(vars, optionsMap)
 
 	return vars
 }
@@ -182,7 +186,7 @@ func extractVariables(template, input string) (map[string]string, error) {
 	vars := make(map[string]string)
 	for i, name := range regex.SubexpNames() {
 		if i != 0 && name != "" {
-			vars[name] = match[i]
+			vars[name] = strings.Trim(match[i], "\r")
 		}
 	}
 
