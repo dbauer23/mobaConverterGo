@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"log"
 	"moba-converter-go/internal/config"
 
 	"github.com/spf13/cobra"
@@ -19,10 +18,7 @@ var showCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		configPath, _ := cmd.Flags().GetString("configPath")
 
-		ops, _, _, err := config.LoadConfigurations(configPath)
-		if err != nil {
-			log.Fatalf("Error loading configurations: %v", err)
-		}
+		ops, _, _ := config.LoadConfigurations(configPath)
 
 		for key, option := range ops {
 			fmt.Printf("Option: %s\n", key)

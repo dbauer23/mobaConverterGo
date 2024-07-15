@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"log"
 	"os"
 )
 
@@ -46,7 +47,7 @@ type JSONInput struct {
 }
 
 // LoadConfigurations read and unmarshal the JSON configuration file.
-func LoadConfigurations(filename string) (OptionsMap, SessionMap, map[string]string, error) {
+func LoadConfigurations(filename string) (OptionsMap, SessionMap, map[string]string) {
 
 	var data []byte
 	var err error
@@ -54,20 +55,20 @@ func LoadConfigurations(filename string) (OptionsMap, SessionMap, map[string]str
 	if filename == "" {
 		data, err = Asset("data/config.json")
 		if err != nil {
-			return nil, nil, nil, err
+			log.Fatalf("Error loading configurations: %v", err)
 		}
 	} else {
 		data, err = os.ReadFile(filename)
 		if err != nil {
-			return nil, nil, nil, err
+			log.Fatalf("Error loading configurations: %v", err)
 		}
 
 	}
 
 	var conf Config
 	if err := json.Unmarshal(data, &conf); err != nil {
-		return nil, nil, nil, err
+		log.Fatalf("Error loading configurations: %v", err)
 	}
 
-	return conf.Options, conf.SessionTypes, conf.Meta, nil
+	return conf.Options, conf.SessionTypes, conf.Meta
 }

@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"log"
 	"moba-converter-go/internal/config"
 
 	"github.com/spf13/cobra"
@@ -19,10 +18,7 @@ var infoCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		configPath, _ := cmd.Flags().GetString("configPath")
 
-		_, _, meta, err := config.LoadConfigurations(configPath)
-		if err != nil {
-			log.Fatalf("Error loading configurations: %v", err)
-		}
+		_, _, meta := config.LoadConfigurations(configPath)
 
 		fmt.Println("Version of Value-Database")
 		if version, ok := meta["version"]; ok {
