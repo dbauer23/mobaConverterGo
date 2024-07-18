@@ -161,36 +161,26 @@ func evalSession(sessionType string, line string, lineNumber int, ImgNum string,
 		// Get tmpl for current section and split it
 		tmpl_section := strings.Split(tmpl_slice[i_section], "%")
 		// Split section by % to get Option
-		// The offset is used in combination with Parameters which change the number of fields (%)
+		// The offset is used in combination with Parameters which change the number of fields (%)(ColorScheme)
 		offset := 0
 
 		for i_option, option := range strings.Split(section, "%") {
 			// fmt.Printf("\n\n")
-			if inColorScheme {
-
-				optionName = "ColorScheme"
-			} else {
-				optionName = strings.Trim(tmpl_section[i_option+offset], "{. }")
-
-			}
+			optionName = strings.Trim(tmpl_section[i_option+offset], "{. }")
 
 			if i_option == 16 && option != "_Std_Colors_0_" && optionName == "ColorScheme" {
-
 				inColorScheme = true
 			}
 			if inColorScheme {
 
 				if i_option != 16 {
 					option = "%" + option
+					offset -= 1
 				}
 				vars[optionName] = vars[optionName] + option
-
 				if i_option == 31 {
 					// exit ColorScheme
 					inColorScheme = false
-
-					// Rest i_counter to match tmpl
-					offset = -15
 				}
 				continue
 			}
