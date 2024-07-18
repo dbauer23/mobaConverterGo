@@ -5,8 +5,7 @@
 !.vscode/extensions.json
 !.vscode/*.code-snippets
 
-converted.mxtsessions
-converted2.mxtsessions
-converted.json
+*.mxtsessions
+*.json
 
 *.exe
