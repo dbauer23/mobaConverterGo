@@ -1,11 +1,11 @@
 {
   "_meta": {
-    "version": "1.0.1",
+    "version": "1.0.2",
     "changed_when": "2024-06-25"
   },
   "sessionTypes": {
     "ssh": {
-      "tmplString": "{{.SessionName}}={{ .Logout }}#{{ .IconNumber }}#{{ .SessionType }}%{{ .RemoteHost }}%{{ .Port }}%{{ .Username }}%{{ .Empty }}%{{ .X11Forwarding }}%{{ .Compression }}%{{ .ExecuteCommand }}%{{ .SSHGWHostList }}%{{ .SSHGWPortList }}%{{ .SSHGWUserList }}%{{ .DoNotExitAfterLoginCommand }}%{{ .DontSpecifyUsername }}%{{ .RemoteEnvironment }}%{{ .PrivateKeyPath }}%{{ .SSHGWPrivateKeyList }}%{{ .SSHBrowserType }}%{{ .FollowSSHPath }}%{{ .Zero }}%{{ .ProxyType }}%{{ .ProxyHost }}%{{ .ProxyPort }}%{{ .ProxyLogin }}%{{ .AdaptLocales }}%{{ .FileBrowserSCPOverSFTP }}%{{ .FileBrowserProtocol }}%{{ .LocalProxyCommand }}%{{ .SSHProtocolVersion }}%{{ .KeyExchangeAlgos }}%{{ .HostKeyTypes }}%{{ .Ciphers }}%{{ .DisconnectIfAuthSucceedsTrivially }}%{{ .PreferHostKeyAlgorithms }}%{{ .AttemptAuthUsingSSHAgent }}%{{ .AllowAgentForwarding }}#{{ .TerminalFont }}%{{ .FontSize }}%{{ .TerminalFontBold }}%{{ .Empty }}%{{ .AppendWindowsPath }}%{{ .TerminalCharset }}%{{ .Foreground }}%{{ .Background }}%{{ .CursorColor }}%{{ .CursorType }}%{{ .BackspaceSendsCtrlH }}%{{ .LogOutput }}%{{ .LogFolderPath }}%{{ .TerminalType }}%{{ .LockTerminalTitle }}%{{ .Empty }}%{{ .ColorScheme }}%{{ .TerminalRows }}%{{ .TerminalColumns }}%{{ .ForceFixedRowsCols }}%{{ .SyntaxHighlighting }}%{{ .ShowBoldFontAsBrighter }}%{{ .CustomMacroType }}%{{ .CustomMacroText }}%{{ .PasteDelay }}%{{ .FontCharset }}%{{ .FontAntialiasing }}%{{ .FontLigatures }}#{{ .StartSessionIn }}#{{ .Comments }}#{{ .CustomTabColor }}",
+      "tmplString": "{{.SessionName}}={{ .Logout }}#{{ .IconNumber }}#{{ .SessionType }}%{{ .RemoteHost }}%{{ .Port }}%{{ .Username }}%{{ .Unknown }}%{{ .X11Forwarding }}%{{ .Compression }}%{{ .ExecuteCommand }}%{{ .SSHGWHostList }}%{{ .SSHGWPortList }}%{{ .SSHGWUserList }}%{{ .DoNotExitAfterLoginCommand }}%{{ .DontSpecifyUsername }}%{{ .RemoteEnvironment }}%{{ .PrivateKeyPath }}%{{ .SSHGWPrivateKeyList }}%{{ .SSHBrowserType }}%{{ .FollowSSHPath }}%{{ .Zero }}%{{ .ProxyType }}%{{ .ProxyHost }}%{{ .ProxyPort }}%{{ .ProxyLogin }}%{{ .AdaptLocales }}%{{ .FileBrowserSCPOverSFTP }}%{{ .FileBrowserProtocol }}%{{ .LocalProxyCommand }}%{{ .SSHProtocolVersion }}%{{ .KeyExchangeAlgos }}%{{ .HostKeyTypes }}%{{ .Ciphers }}%{{ .DisconnectIfAuthSucceedsTrivially }}%{{ .PreferHostKeyAlgorithms }}%{{ .AttemptAuthUsingSSHAgent }}%{{ .AllowAgentForwarding }}#{{ .TerminalFont }}%{{ .FontSize }}%{{ .TerminalFontBold }}%{{ .Empty }}%{{ .AppendWindowsPath }}%{{ .TerminalCharset }}%{{ .Foreground }}%{{ .Background }}%{{ .CursorColor }}%{{ .CursorType }}%{{ .BackspaceSendsCtrlH }}%{{ .LogOutput }}%{{ .LogFolderPath }}%{{ .TerminalType }}%{{ .LockTerminalTitle }}%{{ .Unknown }}%{{ .ColorScheme }}%{{ .TerminalRows }}%{{ .TerminalColumns }}%{{ .ForceFixedRowsCols }}%{{ .SyntaxHighlighting }}%{{ .ShowBoldFontAsBrighter }}%{{ .CustomMacroType }}%{{ .CustomMacroText }}%{{ .PasteDelay }}%{{ .FontCharset }}%{{ .FontAntialiasing }}%{{ .FontLigatures }}#{{ .StartSessionIn }}#{{ .Comments }}#{{ .CustomTabColor }}",
       "allowed_options": []
     }
   },
@@ -500,7 +500,7 @@
       }
     },
     "Comments": {
-      "default_value": "",
+      "default_value": " ",
       "section": "Terminal settings",
       "help": "No '%' is allowed in the comment. Write a '#' as '__DIEZE__'"
     },
@@ -518,6 +518,11 @@
       "default_value": "0",
       "section": "Internal",
       "help": "This value is always '0'"
+    },
+    "Unknown":{
+      "default": "",
+      "section": "Internal",
+      "help": "Unkown vars"
     }
   }
 }

@@ -168,20 +168,19 @@ func evalSession(sessionType string, line string, lineNumber int, ImgNum string,
 			// fmt.Printf("\n\n")
 			optionName = strings.Trim(tmpl_section[i_option+offset], "{. }")
 
-			if i_option == 16 && option != "_Std_Colors_0_" && optionName == "ColorScheme" {
+			if option != "_Std_Colors_0_" && optionName == "ColorScheme" {
 				inColorScheme = true
 			}
 			if inColorScheme {
-
 				if i_option != 16 {
 					option = "%" + option
-					offset -= 1
 				}
 				vars[optionName] = vars[optionName] + option
 				if i_option == 31 {
-					// exit ColorScheme
 					inColorScheme = false
+					continue
 				}
+				offset -= 1
 				continue
 			}
 			vars[optionName] = option
