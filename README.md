@@ -2,7 +2,7 @@
 
 moba-converter-go is a Go application to create MobaXterm Session files by using json data. 
 
-Author: DominikBauer1
+Author: dbauer23
 
 The session file format was used from: [.mxtsessions file format by Ruzgfpegk](https://gist.github.com/Ruzgfpegk/ab597838e4abbe8de30d7224afd062ea)
 
@@ -15,7 +15,7 @@ To build and run the project, follow these steps:
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/DominikBauer1/moba-converter-go.git
+   git clone https://github.com/dbauer23/moba-converter-go.git
    cd moba-converter-go
    ```
 2. **Build the project:**
