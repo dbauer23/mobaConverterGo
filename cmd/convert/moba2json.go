@@ -1,11 +1,10 @@
 package convert
 
 import (
-	"bufio"
 	"encoding/json"
-	"fmt"
 	"log"
 	"moba-converter-go/internal/config"
+	"moba-converter-go/internal/io"
 	"moba-converter-go/internal/mxtsession"
 	"moba-converter-go/internal/utils"
 	"os"
@@ -49,27 +48,9 @@ func convertMoba2Json(cmd *cobra.Command, args []string) {
 	reduce, _ := cmd.Flags().GetBool("reduce")
 
 	// Read moba file
-	var data []byte
-	var err error
-	if inputPathM2J != "" {
-		data, err = os.ReadFile(inputPathM2J)
-		if err != nil {
-			log.Fatalf("Error opening file: %v", err)
-		}
-	} else {
-		// Read from stdin
-		fmt.Fprintln(os.Stderr, "<<Reading from stdin.>>")
-		scanner := bufio.NewScanner(os.Stdin)
-		for scanner.Scan() {
-			data = append(data, scanner.Bytes()...)
-		}
-		if err := scanner.Err(); err != nil {
-			log.Fatalf("Error reading from stdin: %v", err)
-		}
-	}
+	data := io.LoadMxtsessionInput(&inputPathM2J)
 
 	regex_sessionType := regexp.MustCompile(`[^%]+#(?P<sessionType>\d)%`)
-
 	regex_bookmark := regexp.MustCompile(`\[Bookmarks(_\d+)?\]`)
 	regex_SubRep := regexp.MustCompile("SubRep=(.*)")
 	regex_ImgNum := regexp.MustCompile(`ImgNum=(\d+)`)
