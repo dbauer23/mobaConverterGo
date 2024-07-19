@@ -15,7 +15,7 @@ func loadFile(path *string) []byte {
 	// Load a file from a path or from stdin if path is "".
 	var data []byte
 	var err error
-	if *path == "" {
+	if *path != "" {
 		// Read from file
 		data, err = os.ReadFile(*path)
 		if err != nil {
