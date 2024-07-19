@@ -83,6 +83,7 @@ func convertMoba2Json(cmd *cobra.Command, args []string) {
 	// iterate over mxt line by line
 
 	for i, line := range strings.Split(string(data), "\n") {
+		line = strings.TrimSpace(line)
 		if line == "" {
 			// Skip empty lines
 			continue
@@ -138,57 +139,56 @@ func convertMoba2Json(cmd *cobra.Command, args []string) {
 }
 
 func evalSession(sessionType string, line string, lineNumber int, ImgNum string, optionsMap config.OptionsMap, sessionMap config.SessionMap) map[string]string {
+	// TODO: Add error handling with lineNumber
+	// TODO: Add Folder img support
 
+	vars := make(map[string]string)
 	tmpl := mxtsession.GetTmplBySessionTypeId(sessionType, optionsMap, sessionMap)
 
-	vars, err := extractVariables(tmpl, line)
-	if err != nil {
-		log.Fatalf("Error in Line %d: %s", lineNumber, err)
+	// Remove the SessionName and add it directly to the vars.
+	// This is done to remove "=" from the string to parse
+
+	vars["SessionName"] = strings.Split(line, "=")[0]
+	line = strings.Split(line, "=")[1]
+	tmpl = strings.Split(tmpl, "=")[1]
+
+	tmpl_slice := strings.Split(tmpl, "#")
+
+	inColorScheme := false
+	var optionName string
+	// Split Parameter list by "#" to get Sections
+	for i_section, section := range strings.Split(line, "#") {
+		// Get tmpl for current section and split it
+		tmpl_section := strings.Split(tmpl_slice[i_section], "%")
+		// Split section by % to get Option
+		// The offset is used in combination with Parameters which change the number of fields (%)(ColorScheme)
+		offset := 0
+
+		for i_option, option := range strings.Split(section, "%") {
+			// fmt.Printf("\n\n")
+			optionName = strings.Trim(tmpl_section[i_option+offset], "{. }")
+
+			if option != "_Std_Colors_0_" && optionName == "ColorScheme" {
+				inColorScheme = true
+			}
+			if inColorScheme {
+				if i_option != 16 {
+					option = "%" + option
+				}
+				vars[optionName] = vars[optionName] + option
+				if i_option == 31 {
+					inColorScheme = false
+					continue
+				}
+				offset -= 1
+				continue
+			}
+			vars[optionName] = option
+		}
+
 	}
 
 	vars = utils.ReverseValueReplacements(vars, optionsMap)
 
 	return vars
-}
-
-func createRegexFromTemplate(template string) (string, error) {
-	// The placeholder regex pattern to match {{.VariableName}}
-	placeholderRegex := regexp.MustCompile(`\\{\\{\s*\\.([a-zA-Z0-9_]+)\s*\\}\\}`)
-	// Replace placeholders with named capturing groups
-	regexStr := placeholderRegex.ReplaceAllString(template, `(?P<$1>.*?)`)
-
-	// Append $ to make sure the regex is read until EOL
-	regexStr += "$"
-
-	return regexStr, nil
-}
-
-func extractVariables(template, input string) (map[string]string, error) {
-	escapedTemplate := regexp.QuoteMeta(template)
-	regexStr, err := createRegexFromTemplate(escapedTemplate)
-	if err != nil {
-		return nil, err
-	}
-
-	regex, err := regexp.Compile(regexStr)
-	if err != nil {
-		return nil, err
-	}
-
-	// fmt.Println(input)
-	// fmt.Println(regexStr)
-
-	match := regex.FindStringSubmatch(input)
-	if match == nil {
-		return nil, fmt.Errorf("input does not match template")
-	}
-
-	vars := make(map[string]string)
-	for i, name := range regex.SubexpNames() {
-		if i != 0 && name != "" {
-			vars[name] = strings.Trim(match[i], "\r")
-		}
-	}
-
-	return vars, nil
 }
