@@ -57,7 +57,7 @@ func convertMoba2Json(cmd *cobra.Command, args []string) {
 
 	var isInBookmarkHeader bool // Defines if we are in a bookmark header. We the expect SubRep and ImgNum as the next lines
 	var currentFolder string
-	var currentImgNum string
+	folders := make(map[string]map[string]string)
 
 	var sessionSlice []map[string]string
 
@@ -74,8 +74,13 @@ func convertMoba2Json(cmd *cobra.Command, args []string) {
 		if isInBookmarkHeader {
 			if m := regex_SubRep.FindStringSubmatch(line); len(m) > 0 {
 				currentFolder = strings.ReplaceAll(strings.Trim(m[1], "\r"), "\\", "/")
+				// add folder to map if not aleady there
+				if _, ok := folders[currentFolder]; !ok {
+					folders[currentFolder] = make(map[string]string)
+				}
 			} else if m := regex_ImgNum.FindStringSubmatch(line); len(m) > 0 {
-				currentImgNum = m[1]
+				// Add ImgNum to folder in map as Icon
+				folders[currentFolder]["Icon"] = m[1]
 				isInBookmarkHeader = false
 			} else {
 				log.Fatalf("Expected SubRep or ImgNum line. Got %s in line %d", line, i)
@@ -88,7 +93,7 @@ func convertMoba2Json(cmd *cobra.Command, args []string) {
 			isInBookmarkHeader = true
 		} else {
 			// Now this should be a session line
-			c_session := evalSession(regex_sessionType.FindStringSubmatch(line)[1], line, i, currentImgNum, optionsMap, sessionMap)
+			c_session := evalSession(regex_sessionType.FindStringSubmatch(line)[1], line, i, optionsMap, sessionMap)
 			// Add folder to session
 			if currentFolder != "" {
 				// FIXME: This is ugly. There should always a folder exported . This currently doesn't work, since j2m doesn't accept "/" or ""
@@ -103,7 +108,7 @@ func convertMoba2Json(cmd *cobra.Command, args []string) {
 			sessionSlice = append(sessionSlice, c_session)
 		}
 	}
-
+	jsonOutput.Folders = folders
 	jsonOutput.Meta["description"] = "This file was created using moba-converter-go"
 	jsonOutput.Sessions = sessionSlice
 
@@ -119,9 +124,8 @@ func convertMoba2Json(cmd *cobra.Command, args []string) {
 
 }
 
-func evalSession(sessionType string, line string, lineNumber int, ImgNum string, optionsMap config.OptionsMap, sessionMap config.SessionMap) map[string]string {
+func evalSession(sessionType string, line string, lineNumber int, optionsMap config.OptionsMap, sessionMap config.SessionMap) map[string]string {
 	// TODO: Add error handling with lineNumber
-	// TODO: Add Folder img support
 
 	vars := make(map[string]string)
 	tmpl := mxtsession.GetTmplBySessionTypeId(sessionType, optionsMap, sessionMap)
