@@ -8,6 +8,7 @@ import (
 	"moba-converter-go/internal/mxtsession"
 	"moba-converter-go/internal/utils"
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -70,7 +71,22 @@ func convertJson2Moba(cmd *cobra.Command, args []string) {
 
 	fmt.Fprintf(writer, "[Bookmarks]\r\nSubRep=\r\nImgNum=42\r\n")
 	idx := 0
-	for currentFolder, sessions := range groupedSessions {
+
+	// Sort the keys of groupedSessions map
+	// This is necessary to ensure that the output is and the same order as created by mobaxterm
+	// To do this we first create a slice of the keys and sort them
+	var sortedFolders []string
+	for folder := range groupedSessions {
+		sortedFolders = append(sortedFolders, folder)
+	}
+	// Sort the slice of foldernames
+	sort.Slice(sortedFolders, func(i, j int) bool {
+		// Sort strings in ascending order
+		return strings.ToLower(sortedFolders[i]) < strings.ToLower(sortedFolders[j])
+	})
+
+	for _, currentFolder := range sortedFolders {
+		sessions := groupedSessions[currentFolder]
 		if currentFolder != "/" {
 			idx++
 			// Empty line after each Folder Block
