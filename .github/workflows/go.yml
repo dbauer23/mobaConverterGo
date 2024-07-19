@@ -22,7 +22,7 @@ jobs:
         go-version: '1.22'
 
     - name: Build
-      run: /bin/sh. /build.sh
+      run: /bin/sh /build.sh
 
     - name: Test
       run: go test -v ./...
