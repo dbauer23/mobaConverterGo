@@ -9,3 +9,4 @@
 *.json
 
 *.exe
+internal/config/config.json.go
