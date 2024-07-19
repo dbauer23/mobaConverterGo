@@ -2,10 +2,9 @@ package convert
 
 import (
 	"bufio"
-	"encoding/json"
 	"fmt"
-	"log"
 	"moba-converter-go/internal/config"
+	"moba-converter-go/internal/io"
 	"moba-converter-go/internal/mxtsession"
 	"moba-converter-go/internal/utils"
 	"os"
@@ -36,7 +35,7 @@ func convertJson2Moba(cmd *cobra.Command, args []string) {
 	configPath, _ := cmd.Flags().GetString("configPath")
 	optionsMap, sessionMap, _ := config.LoadConfigurations(configPath)
 	// Load Input File
-	input := loadInput()
+	input := io.LoadJsonInput(&inputPath)
 
 	// Create a new sessions variable to store the final session is.
 	// After applying defaults, templates etc.
@@ -97,33 +96,4 @@ func convertJson2Moba(cmd *cobra.Command, args []string) {
 
 	}
 	writer.Flush()
-}
-
-func loadInput() config.JSONInput {
-	// Read from file if inputPath is provided
-	var data []byte
-	var err error
-	if inputPath != "" {
-		data, err = os.ReadFile(inputPath)
-		if err != nil {
-			log.Fatalf("Error opening file: %v", err)
-		}
-	} else {
-		// Read from stdin
-		fmt.Fprintln(os.Stderr, "<<Reading from stdin.>>")
-		scanner := bufio.NewScanner(os.Stdin)
-		for scanner.Scan() {
-			data = append(data, scanner.Bytes()...)
-		}
-		if err := scanner.Err(); err != nil {
-			log.Fatalf("Error reading from stdin: %v", err)
-		}
-	}
-
-	var input config.JSONInput
-	if err := json.Unmarshal(data, &input); err != nil {
-		log.Fatalf("Error parsing input file: %v", err)
-	}
-
-	return input
 }
