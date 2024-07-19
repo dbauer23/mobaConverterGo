@@ -20,7 +20,9 @@ To build and run the project, follow these steps:
    ```
 2. **Build the project:**
     ```bash
-    go build -o moba-converter-go.exe
+    .\build.bat
+    # Or for Linux
+    ./build.sh
     ```
 3. **Run the executable:**
     ```bash

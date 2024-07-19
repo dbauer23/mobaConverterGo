@@ -10,3 +10,4 @@ converted2.mxtsessions
 converted.json
 
 *.exe
+internal/config/config.json.go
